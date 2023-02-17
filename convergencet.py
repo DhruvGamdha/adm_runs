@@ -200,7 +200,7 @@ def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, ve
     plot_vals(dt_list, errors, 'transient_time_convergence.pdf', 'dt', 'l2_error')
     
 
-def evalProgramScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
+def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
     
     cfg = createConfig(0.1, 10, 256, 2, 'linear')
     
@@ -240,7 +240,7 @@ if __name__ == "__main__":
     # errors          = [7.43E-07, 1.98E-07, 6.01E-08, 2.73E-08, 1.74E-08]
     # dts             = [0.1, 0.05, 0.025]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
-    numProcs           = [1, 2, 4, 8]
+    numProcs        = [1, 2, 4, 8]
     runTemplate     = "run_{0:03d}"
     # versionTemplate = "config_{0:03d}"
     versionTemplate = "procs_{0:03d}"
@@ -251,5 +251,5 @@ if __name__ == "__main__":
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
-    evalProgramScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
+    evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
 
