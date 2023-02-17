@@ -216,10 +216,10 @@ def evalProgramScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, vers
     timeDict = getAllInfo(runDirPathObj)
     
     # Divide the time by the time at 1 processor
-    timeDict['time_solve'] =  [x / timeDict['time_solve'][0] for x in timeDict['time_solve']]
-    timeDict['time_assemble'] =  [x / timeDict['time_assemble'][0] for x in timeDict['time_assemble']]
-    timeDict['time_ksp'] =  [x / timeDict['time_ksp'][0] for x in timeDict['time_ksp']]
-    timeDict['time_update'] =  [x / timeDict['time_update'][0] for x in timeDict['time_update']]
+    timeDict['time_solve']      =  [ timeDict['time_solve'][0] / x for x in timeDict['time_solve']]
+    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0] / x  for x in timeDict['time_assemble']]
+    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0] / x  for x in timeDict['time_ksp']]
+    timeDict['time_update']     =  [ timeDict['time_update'][0] / x  for x in timeDict['time_update']]
     
     plot_vals(numProcs_list, timeDict['time_solve'], 'time_solve', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
     plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
