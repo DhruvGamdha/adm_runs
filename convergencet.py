@@ -205,7 +205,7 @@ def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, ve
 
 def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
     
-    cfg = createConfig(0.1, 10, 256, 2, 'linear')
+    cfg = createConfig(0.1, 1, 243, 2, 'cubic')
     
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
@@ -219,15 +219,57 @@ def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versi
     timeDict = getAllInfo(runDirPathObj)
     
     # Divide the time by the time at 1 processor
-    timeDict['time_solve']      =  [ timeDict['time_solve'][0] / x for x in timeDict['time_solve']]
-    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0] / x  for x in timeDict['time_assemble']]
-    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0] / x  for x in timeDict['time_ksp']]
-    timeDict['time_update']     =  [ timeDict['time_update'][0] / x  for x in timeDict['time_update']]
+    timeDict['time_solve']      =  [ timeDict['time_solve'][0]      / x for x in timeDict['time_solve']]
+    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0]   / x for x in timeDict['time_assemble']]
+    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0]        / x for x in timeDict['time_ksp']]
+    timeDict['time_update']     =  [ timeDict['time_update'][0]     / x for x in timeDict['time_update']]
     
-    plot_vals(numProcs_list, timeDict['time_solve'], 'time_solve', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_ksp'], 'time_ksp', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_update'], 'time_update', 'numProcs', 'time (s)', xScale='linear', yScale='log', makeComparison=False, plotAppend=True)
+    xlabel = 'Number of Processors'
+    ylabel = 'Scaling (t0/t)'
+    xscale = 'linear'
+    yscale = 'linear'
+    
+    plot_vals(numProcs_list, timeDict['time_solve'] ,   'time_solve',   xlabel, ylabel, xScale=xscale, yScale=yscale, makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble',xlabel, ylabel, xScale=xscale, yScale=yscale, makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_ksp'],      'time_ksp',     xlabel, ylabel, xScale=xscale, yScale=yscale, makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_update'],   'time_update',  xlabel, ylabel, xScale=xscale, yScale=yscale, makeComparison=False, plotAppend=True)
+    
+    # Read all the pdf files in the run directory and combine them into a single pdf file
+    pdfs = glob.glob("*.pdf")
+    merger = PdfMerger()
+    for pdf in pdfs:
+        merger.append(pdf)
+    merger.write("strongScaling.pdf")
+    merger.close()
+
+def evalWeakScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
+    
+    nElem_list = [64, 128, 256, 512]
+    cfg_list = createAllConfigs([0.1], t_list = [1], nElems_list = nElem_list, nsd_list = [2], basisFunction_list  = ['linear'])
+    
+    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
+    os.chdir(runDirPathObj) # change to the run directory
+    
+    for i in range(len(cfg_list)):
+        cfg = cfg_list[i]
+        numProcs = numProcs_list[i]
+        versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
+        os.chdir(versionDirPathObj)
+        runExe(exePath, cfg, numProcs)
+        os.chdir(runDirPathObj)
+    
+    timeDict = getAllInfo(runDirPathObj)
+     
+    # Divide the time by the time at 1 processor
+    timeDict['time_solve']      =  [ timeDict['time_solve'][0]      / x  for x in timeDict['time_solve']]
+    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0]   / x  for x in timeDict['time_assemble']]
+    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0]        / x  for x in timeDict['time_ksp']]
+    timeDict['time_update']     =  [ timeDict['time_update'][0]     / x  for x in timeDict['time_update']]
+    
+    plot_vals(numProcs_list, timeDict['time_solve'],    'time_solve',   'numProcs', 'time (s)', xScale='linear', yScale='linear', makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble','numProcs', 'time (s)', xScale='linear', yScale='linear', makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_ksp'],      'time_ksp',     'numProcs', 'time (s)', xScale='linear', yScale='linear', makeComparison=False, plotAppend=True)
+    plot_vals(numProcs_list, timeDict['time_update'],   'time_update',  'numProcs', 'time (s)', xScale='linear', yScale='linear', makeComparison=False, plotAppend=True)
     
     # Read all the pdf files in the run directory and combine them into a single pdf file
     pdfs = glob.glob("*.pdf")
