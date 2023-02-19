@@ -26,7 +26,7 @@ def runExe(exePath, cfg, nProcs=1):
         libconf.dump(cfg, f)
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath], stdout=f)
+        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-ksp_rtol', '1E-13'], stdout=f)
 
 def extractInfoFromOutputFile(outReadMode):
     
@@ -117,17 +117,17 @@ def evaluateSlope_loglog(x, y, xScale, yScale):
 def plot_vals(dts, errors, fileName, xLabel, yLabel, xScale='log', yScale='log', makeComparison=False, plotAppend=False):
     
     slope = evaluateSlope_loglog(dts, errors, xScale, yScale)
-    
     plt.plot(dts, errors, marker='.' , label='slope: {0:.8f}'.format(slope))  # plot the convergence
     if makeComparison:
-        plt.plot(dts, dts, color='red', label='y = x')                      # plot the y = x line
-        plt.plot(dts, [x**2 for x in dts], color='green', label='y = x^2')  # plot the y = x^2 line
-        plt.plot(dts, [x**3 for x in dts], color='black', label='y = x^3')  # plot the y = x^3 line
-    
+        # plot y = x, y = x^2, y = x^3
+        plt.plot(dts, dts, label='y = x')
+        plt.plot(dts, [dt**2 for dt in dts], label='y = x^2')
+        plt.plot(dts, [dt**3 for dt in dts], label='y = x^3')
+        
     # plt.show()          # show the plot
     plt.xscale(xScale)       # log log scale
     plt.yscale(yScale)
-    
+
     plt.xlabel(xLabel)        # label the plot
     plt.ylabel(yLabel)
     
@@ -162,7 +162,7 @@ def createConfig(dt, t, n_elems, nsd, basis_function):
         }
     return cfgDict
 
-def createAllConfigs(dt_list, t_list = [10], nElems_list = [128], nsd_list = [2], basisFunction_list  = ['linear']):
+def createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2], basisFunction_list  = ['linear']):
     
     ## create all combinations of the config files parameters as a list of dictionaries
     cfgsParams = []
@@ -185,9 +185,9 @@ def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, ve
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
     
-    cfg_list = createAllConfigs(dt_list, t_list = [10], nElems_list = [256], nsd_list = [2], basisFunction_list  = ['linear'])
+    cfg_list = createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2], basisFunction_list  = ['linear'])
+    
     for cfg in cfg_list:
-        cfg_list.append(cfg)
         versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
         os.chdir(versionDirPathObj) # change to the version directory
         runExe(exePath, cfg, 8)     # run the executable
@@ -197,7 +197,10 @@ def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, ve
     errors =  getError(runDirPathObj)
     
     print("Errors: " + ", ".join(["{0:.2E}".format(e) for e in errors]))
-    plot_vals(dt_list, errors, 'transient_time_convergence.pdf', 'dt', 'l2_error')
+    xscale = 'log'
+    yscale = 'log'
+    plot_vals(dt_list,      errors,     'transient_time_convergence',       'dt', 'l2_error', xScale=xscale, yScale=yscale, makeComparison=True)                 # plot the convergence
+    plot_vals(dt_list[:4],  errors[:4], 'transient_time_convergence_4dts',  'dt', 'l2_error', xScale=xscale, yScale=yscale, makeComparison=True)    # plot the convergence for the first 3 dt values
     
 
 def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
@@ -231,12 +234,14 @@ def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versi
     merger = PdfMerger()
     for pdf in pdfs:
         merger.append(pdf)
-    merger.write("scaling.pdf")
+    merger.write("weakScaling.pdf")
     merger.close()
+    
+    
       
 if __name__ == "__main__":
     
-    # dts             = [0.1, 0.05, 0.025, 0.0125, 0.00625]
+    dts             = [0.2, 0.1, 0.05, 0.025, 0.0125]
     # errors          = [7.43E-07, 1.98E-07, 6.01E-08, 2.73E-08, 1.74E-08]
     # dts             = [0.1, 0.05, 0.025]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
@@ -245,11 +250,12 @@ if __name__ == "__main__":
     # versionTemplate = "config_{0:03d}"
     versionTemplate = "procs_{0:03d}"
     baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
-    exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-debug/tutorials/transient_heat/ht"
-    runDirPathObj   = baseDirPathObj / "run_007"
+    exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+    # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
     evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
+    # evalWeakScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
 
