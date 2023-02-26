@@ -144,12 +144,12 @@ def createLatestDir(baseDirPathObj, dirTemplate):
     runDirPathObj.mkdir(parents=True, exist_ok=True)        # create the run directory
     return runDirPathObj    
 
-def createConfig(dt, t, n_elems, nsd, basis_function):
+def createConfig(dt, t, n_elems, nsd, basis_function, ifDD=True):
     cfgDict = {
             "ifBoxGrid": True,
             "nsd": nsd,
             "basisFunction": basis_function,
-            "ifDD": True,
+            "ifDD": ifDD,
             "Lx": 1,
             "Ly": 1,
             "Lz": 1,
@@ -205,7 +205,7 @@ def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, ve
 
 def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, versionTemplate):
     
-    cfg = createConfig(0.1, 1, 243, 2, 'cubic')
+    cfg = createConfig(0.1, 1, 512, 2, 'linear', ifDD=False)
     
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
@@ -295,9 +295,9 @@ if __name__ == "__main__":
     exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
     # runDirPathObj   = baseDirPathObj / "run_007"
     
-    # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
+    runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
-    evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
+    # evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
     # evalWeakScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
 
