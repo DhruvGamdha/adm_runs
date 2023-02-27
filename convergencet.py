@@ -10,6 +10,7 @@ import pathlib as pl
 import os
 import glob
 from PyPDF2 import PdfMerger
+import shutil
 
 
 def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
@@ -144,22 +145,46 @@ def createLatestDir(baseDirPathObj, dirTemplate):
     runDirPathObj.mkdir(parents=True, exist_ok=True)        # create the run directory
     return runDirPathObj    
 
-def createConfig(dt, t, n_elems, nsd, basis_function, ifDD=True):
-    cfgDict = {
-            "ifBoxGrid": True,
-            "nsd": nsd,
-            "basisFunction": basis_function,
-            "ifDD": ifDD,
-            "Lx": 1,
-            "Ly": 1,
-            "Lz": 1,
-            "Nelemx": n_elems,
-            "Nelemy": n_elems,
-            "Nelemz": n_elems,
-            "typeOfIC": 1,
-            "dt": dt,
-            "nOfTS": int(t/dt)
-        }
+def createConfig(dt, t, n_elems, nsd, basis_function, ifDD=True, type=1):
+    if type == 1:
+        cfgDict = {
+                "ifBoxGrid": True,
+                "nsd": nsd,
+                "basisFunction": basis_function,
+                "ifDD": ifDD,
+                "Lx": 1,
+                "Ly": 1,
+                "Lz": 1,
+                "Nelemx": n_elems,
+                "Nelemy": n_elems,
+                "Nelemz": n_elems,
+                "typeOfIC": 1,
+                "dt": dt,
+                "nOfTS": int(t/dt)
+            }
+    elif type == 2:
+        cfgDict = {
+                "ifBoxGrid": True,
+                "nsd": nsd,
+                "basisFunction": basis_function,
+                "ifDD": ifDD,
+                "Lx": 1,
+                "Ly": 1,
+                "Lz": 1,
+                "Nelemx": n_elems,
+                "Nelemy": n_elems,
+                "Nelemz": n_elems,
+                "typeOfIC": 1,
+                "dt": dt,
+                "dt_print_": 5*dt,
+                "nOfTS": 15500,
+                "Tp": 50,
+                "Ta": 30,
+                "Tn": 70,
+                "print_geometry_file": 'LowResCube.ctr',
+                "diffusivity": 0.05,
+                "K_ambient": 0
+            }
     return cfgDict
 
 def createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2], basisFunction_list  = ['linear']):
@@ -279,23 +304,50 @@ def evalWeakScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, version
     merger.write("weakScaling.pdf")
     merger.close()
     
+
+def runVoxelPrinting(exePath, baseDirPathObj, runTemplate, versionTemplate):
     
+    printGeom = 'LowResCube.ctr'
+    cfg = createConfig(0.1, 1, 16, 3, 'linear', False, 2)
+    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
+    os.chdir(runDirPathObj) # change to the run directory
+    
+    versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
+    
+    # Create data directory inside the version directory
+    dataDirPathObj = createLatestDir(versionDirPathObj, 'data')
+    
+    os.chdir(dataDirPathObj)
+    # copy LowResCube.ctr file from baseDirPathObj to the current directory
+    shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
+    runExe(exePath, cfg, 8)
+    
+    # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
+    shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
+    shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
+    shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
+    
+    os.chdir(runDirPathObj)
+    
+    return
+
       
 if __name__ == "__main__":
     
-    dts             = [0.2, 0.1, 0.05, 0.025, 0.0125]
+    # dts             = [0.2, 0.1, 0.05, 0.025, 0.0125]
     # errors          = [7.43E-07, 1.98E-07, 6.01E-08, 2.73E-08, 1.74E-08]
     # dts             = [0.1, 0.05, 0.025]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
-    numProcs        = [1, 2, 4, 8]
+    # numProcs        = [1, 2, 4, 8]
     runTemplate     = "run_{0:03d}"
-    # versionTemplate = "config_{0:03d}"
-    versionTemplate = "procs_{0:03d}"
+    versionTemplate = "config_{0:03d}"
+    # versionTemplate = "procs_{0:03d}"
     baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
     exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
     # runDirPathObj   = baseDirPathObj / "run_007"
     
-    runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
+    # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, versionTemplate)
+    runVoxelPrinting(exePath, baseDirPathObj, runTemplate, versionTemplate)
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
     # evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, versionTemplate)
