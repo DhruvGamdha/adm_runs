@@ -28,7 +28,7 @@ def runExe(exePath, cfg, nProcs=1):
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
         subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-ksp_rtol', \
-            '1E-13'], stdout=f)
+            '1E-13'], stdout=f) # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
 
 def extractInfoFromOutputFile(outReadMode):
     
@@ -188,14 +188,15 @@ def createConfig(paraDict, type=1):
                 "Nelemz": paraDict['n_elems'],
                 "typeOfIC": 1,
                 "dt": paraDict['dt'],
-                "dt_print_": paraDict['dt_print'],    # Number of print voxels = 3010 
-                "nOfTS": int(paraDict['n_filledVoxels'] * paraDict['dt_print']/paraDict['dt']),
+                "dt_print": paraDict['dt_print'], 
+                "additional_time": paraDict['additional_time'],
                 "Tp": 50,
                 "Ta": 30,
                 "Tn": 70,
                 "print_geometry_file": paraDict['printGeom'],
                 "diffusivity": paraDict['diffusivity'],
-                "K_ambient": 0
+                "K_ambient": 0,
+                "outputExtension": '.dat'
             }
     return cfgDict
 
@@ -363,8 +364,8 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
     for dt in dt_list:
         for dt_print in dt_print_list:
             paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
-                        'linear', 'ifDD': False, 'n_elems': 16, 'n_filledVoxels': \
-                        3010, 'diffusivity': 0.0015, 'printGeom': printGeom}
+                        'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
+                            20, 'diffusivity': 0.003, 'printGeom': printGeom}
             allcfgsParams.append(paraDict)
     
     
@@ -380,13 +381,15 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
     runTemplate, versionTemplate):
     
     # printGeom = 'LowResCube.ctr'
-    printGeom = 'bunny_32.ctr'
+    printGeom = 'bunny_16.ctr'
     
     cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeom)
     
     # cfg = createConfig(0.1, 1, 16, 3, 'linear', False, 2)
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
+    # print the current directory
+    print(os.getcwd())
     
     for i in range(len(cfg_list)):
         cfg = cfg_list[i]
@@ -419,17 +422,15 @@ if __name__ == "__main__":
     dtp             = 0.035
     dt_print_list   = [dtp]
     # dts = [0.1]
-    dts             = [dtp/5]
+    dts             = [dtp/3]
     # dts             = [dtp/3, dtp/4, dtp/5]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
     # numProcs        = [1, 2, 4, 8]
     runTemplate     = "run_{0:03d}"
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/ \
-        TalyFEM/runs/TSHT/plotting/python/tests")
-    exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/ \
-        taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+    baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
+    exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
     # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
