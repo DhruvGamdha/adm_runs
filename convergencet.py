@@ -365,7 +365,7 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
         for dt_print in dt_print_list:
             paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
                         'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
-                            20, 'diffusivity': 0.003, 'printGeom': printGeom}
+                            50, 'diffusivity': 0.003, 'printGeom': printGeom}
             allcfgsParams.append(paraDict)
     
     
@@ -378,10 +378,10 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
 
 
 def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
-    runTemplate, versionTemplate):
+    runTemplate, versionTemplate, printGeom):
     
     # printGeom = 'LowResCube.ctr'
-    printGeom = 'bunny_16.ctr'
+    # printGeom = 'bunny_16.ctr'
     
     cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeom)
     
@@ -402,7 +402,7 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         # copy LowResCube.ctr file from baseDirPathObj to the current directory
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
-        runExe(exePath, cfg, 8)
+        runExe(exePath, cfg, 64)
         
         # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
@@ -429,14 +429,27 @@ if __name__ == "__main__":
     runTemplate     = "run_{0:03d}"
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
-    exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+    # ************ Local ************
+    # baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
+    # exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+    # *******************************
+    
+    # ************ NOVA ************
+    baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/taly_run/tests")
+    exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
+    # *******************************
     # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
+    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+    #     versionTemplate, 'bunny_16.ctr')
     runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate)
+        versionTemplate, 'bunny_32.ctr')
+    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+        versionTemplate, 'bunny_64.ctr')
+    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+        versionTemplate, 'bunny_128.ctr')
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
     # evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, \
