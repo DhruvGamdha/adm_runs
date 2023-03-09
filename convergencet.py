@@ -11,6 +11,7 @@ import os
 import glob
 from PyPDF2 import PdfMerger
 import shutil
+import multiprocessing as mp
 
 
 def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
@@ -402,7 +403,7 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         # copy LowResCube.ctr file from baseDirPathObj to the current directory
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
-        runExe(exePath, cfg, 64)
+        runExe(exePath, cfg, mp.cpu_count())
         
         # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
@@ -439,6 +440,8 @@ if __name__ == "__main__":
     exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
     # *******************************
     # runDirPathObj   = baseDirPathObj / "run_007"
+    
+    print("Number of processors:", mp.cpu_count())
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
