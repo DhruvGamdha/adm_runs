@@ -379,7 +379,7 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
 
 
 def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
-    runTemplate, versionTemplate, printGeom):
+    runTemplate, versionTemplate, printGeom, numNodes, numCPU):
     
     # printGeom = 'LowResCube.ctr'
     # printGeom = 'bunny_16.ctr'
@@ -403,7 +403,7 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         # copy LowResCube.ctr file from baseDirPathObj to the current directory
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
-        runExe(exePath, cfg, mp.cpu_count())
+        runExe(exePath, cfg, numNodes*numCPU)
         
         # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
@@ -441,18 +441,23 @@ if __name__ == "__main__":
     # *******************************
     # runDirPathObj   = baseDirPathObj / "run_007"
     
+    numNodes = 4
+    
     print("Number of processors:", mp.cpu_count())
+    numCPU = 36
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
+    
     # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_16.ctr')
+    #     versionTemplate, 'bunny_16.ctr', numNodes, numCPU)
+    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+    #     versionTemplate, 'bunny_32.ctr', numNodes, numCPU)
     runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_32.ctr')
-    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_64.ctr')
-    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_128.ctr')
+        versionTemplate, 'bunny_64.ctr', numNodes, numCPU)
+    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+    #     versionTemplate, 'bunny_128.ctr', numNodes, numCPU)
+    
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
     # evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, \
