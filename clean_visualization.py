@@ -4,17 +4,30 @@ import numpy as np
 
 class voxelPrinting:
     
-    def __init__(self, geomFilePath, datFilePath):
-        self.geomFilePath   = geomFilePath
+    def __init__(self, geomFilePath, verDirPath, datFileID):
         self.printing_order = []
         self.numVoxels_xyz  = np.array([0, 0, 0])
         self.numNodes_xyz   = np.array([0, 0, 0])
-        self.numVoxels     = 0
-        self.numNodes     = 0
-        self.datFilePath = datFilePath
+        self.numVoxels      = 0
+        self.numNodes       = 0
+        self.geomFilePath   = geomFilePath
+        self.dataDirName    = 'data'
+        self.cleanPrefix    = 'clean'
+        self.dataFileType   = '.dat'
+        self.verDirPath     = verDirPath
+        self.dataFileID     = datFileID
+        
+        self.dataDirPath      = self.verDirPath / self.dataDirName
+        self.cleanDataDirPath = self.verDirPath / str(self.cleanPrefix + '_' + self.dataDirName)
+        self.datFileName      = self.dataDirName + '_' + str(self.dataFileID) + self.dataFileType
+        self.cleanFileName    = self.cleanPrefix + '_' + self.datFileName
+        
+        # make clean data directory
+        if not self.cleanDataDirPath.exists():
+            self.cleanDataDirPath.mkdir()
         
         self.readGeomFile()
-        self.readDatFile()
+        self.createCleanFile()
         
     def ijk2ID(self, i, j, k, type='voxel'):
         """
@@ -34,8 +47,84 @@ class voxelPrinting:
         
         return -1
         
-    def readDatFile(self):
+    def createCleanFile(self):
+        '''
+        Read the .dat file which contains the grid nodal values and the grid connectivity.
         
+        Steps:
+        1. Create the cleaned file inside the cleaned directory
+        2. Open the cleaned file
+        3. Open the original file
+        4. Get the original file ID. Note that the original file ID indicated the number of voxels 
+        printed from the printing order. This is the number of voxels that we will need to read 
+        from the original file.
+        5. Get the total number of nodes in the original file
+        6. Transfer the file header to the cleaned file (i.e. the first 3 lines)
+        7. Transfer the grid nodal values to the cleaned file
+        8. Travel through the printing order till we reach the original file ID and transfer the
+        the corresponding grid connectivity to the cleaned file.
+        9. Close the files
+        '''
+        
+        # Create the cleaned file inside the cleaned directory
+        cleanFilePath = self.cleanDataDirPath / self.cleanFileName
+        cleanFile = open(cleanFilePath, 'w')
+        
+        # Open the original file
+        origFilePath = self.dataDirPath / self.datFileName
+        origFile = open(origFilePath, 'r')
+        
+        fileID = self.dataFileID
+        
+        # Get the total number of nodes in the original file
+        numNodes = self.numNodes
+        
+        numVox2copy = 0
+        # Check if the fileID is smaller than the number of voxels in printing order
+        if fileID < len(self.printing_order):
+            numVox2copy = fileID
+        else:
+            numVox2copy = len(self.printing_order)
+        
+        origLines = origFile.readlines()
+        
+        # Transfer the file header to the cleaned file (i.e. the first 3 lines)
+        headerCount = 3
+        for i in range(headerCount):
+            if i<headerCount-1:
+                line = origLines[i]
+                cleanFile.write(line)
+            else:
+                ''' 
+                example i=3 line : ZONE N=4913, E=4096, F=FEPOINT, ET=BRICK
+                Change the E=4096 to E=number of voxels to copy
+                '''
+                line = origLines[i]
+                words = line.split()
+                words[2] = 'E=' + str(numVox2copy) + ','
+                line = ' '.join(words)
+                # add a new line character
+                line = line + '\n'
+                cleanFile.write(line)
+            
+        # Transfer the grid nodal values to the cleaned file
+        for i in range(numNodes):
+            line = origLines[i + headerCount]
+            cleanFile.write(line)
+        
+        referenceLineNum = headerCount + numNodes
+        
+        # Travel through the printing order till we reach the original file ID and transfer the
+        # the corresponding grid connectivity to the cleaned file.
+        for i in range(numVox2copy):
+            voxID = self.printing_order[i]
+            print('voxID    :',voxID)
+            line = origLines[referenceLineNum + voxID]
+            cleanFile.write(line)
+            
+        # Close the files
+        cleanFile.close()
+        origFile.close()
         
     def readGeomFile(self):
         """
@@ -171,19 +260,30 @@ class voxelPrinting:
         
         
 if __name__=="__main__":
-    runDirID = 1
+    # set up parameters
+    runDirID = 3
+    verDirID = 1
+    datFileID = 5
     geomName = 'LowResCube.ctr'
     
-    runDirTemplate = "run_{:03d}"
-    cwd = pl.Path.cwd()
-    runDirPath = cwd / 'tests' / runDirTemplate.format(runDirID)
-
-    print("Cleaning up visualization files in {}".format(runDirPath))
-    dataDirPath = runDirPath / 'data'
-    cleanDataDirPath = runDirPath / 'clean_data'
+    # set up file paths
+    runDirTemplate  = "run_{:03d}"
+    versDirTemplate = "config_{:03d}"
     
-    # make clean data directory
-    if not cleanDataDirPath.exists():
-        cleanDataDirPath.mkdir()
+    cwd = pl.Path.cwd()
+    runDirPath       = cwd / 'tests' / runDirTemplate.format(runDirID)
+    verDirPath       = runDirPath / versDirTemplate.format(verDirID)
+    dataDirPath      = verDirPath / 'data'
+    cleanDataDirPath = verDirPath / 'clean_data'
+    
+    print("Cleaning up visualization files in {}".format(verDirPath))
+    
+    geomFilePath = verDirPath / geomName
+    # # make clean data directory
+    # if not cleanDataDirPath.exists():
+    #     cleanDataDirPath.mkdir()
+    
+    # Create object
+    geom = voxelPrinting(geomFilePath, verDirPath, datFileID)
     
     
