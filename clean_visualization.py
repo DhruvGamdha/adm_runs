@@ -260,9 +260,8 @@ class voxelPrinting:
         
 if __name__=="__main__":
     # set up parameters
-    runDirID = 14
+    runDirID = 15
     verDirID = 1
-    # datFileID = 450
     geomName = 'LowResCube.ctr'
     
     # set up file paths
@@ -275,14 +274,5 @@ if __name__=="__main__":
     dataDirPath      = verDirPath / 'data'
     cleanDataDirPath = verDirPath / 'clean_data'
     
-    print("Cleaning up visualization files in {}".format(verDirPath))
-    
     geomFilePath = verDirPath / geomName
-    # # make clean data directory
-    # if not cleanDataDirPath.exists():
-    #     cleanDataDirPath.mkdir()
-    
-    # Create object
     geom = voxelPrinting(geomFilePath, verDirPath)
-    
-    
