@@ -4,7 +4,7 @@ import numpy as np
 
 class voxelPrinting:
     
-    def __init__(self, geomFilePath, verDirPath, datFileID):
+    def __init__(self, geomFilePath, verDirPath):
         self.printing_order = []
         self.numVoxels_xyz  = np.array([0, 0, 0])
         self.numNodes_xyz   = np.array([0, 0, 0])
@@ -15,12 +15,10 @@ class voxelPrinting:
         self.cleanPrefix    = 'clean'
         self.dataFileType   = '.dat'
         self.verDirPath     = verDirPath
-        self.dataFileID     = datFileID
+        # self.dataFileID     = datFileID
         
         self.dataDirPath      = self.verDirPath / self.dataDirName
         self.cleanDataDirPath = self.verDirPath / str(self.cleanPrefix + '_' + self.dataDirName)
-        self.datFileName      = self.dataDirName + '_' + str(self.dataFileID) + self.dataFileType
-        self.cleanFileName    = self.cleanPrefix + '_' + self.datFileName
         
         # make clean data directory
         if not self.cleanDataDirPath.exists():
@@ -66,65 +64,79 @@ class voxelPrinting:
         9. Close the files
         '''
         
-        # Create the cleaned file inside the cleaned directory
-        cleanFilePath = self.cleanDataDirPath / self.cleanFileName
-        cleanFile = open(cleanFilePath, 'w')
+        # self.datFileName      = self.dataDirName + '_' + str(self.dataFileID) + self.dataFileType
+        # self.cleanFileName    = self.cleanPrefix + '_' + self.datFileName
         
-        # Open the original file
-        origFilePath = self.dataDirPath / self.datFileName
-        origFile = open(origFilePath, 'r')
+        # Get list of all .dat files in the data directory
+        datFileList = list(self.dataDirPath.glob('*.dat'))
         
-        fileID = self.dataFileID
+        for datFilePath in datFileList:
+            
+            datFileName = datFilePath.name
+            
+            # Check if datFileName is data_init.dat or data_final.dat
+            if datFileName == 'data_init.dat' or datFileName == 'data_final.dat':
+                continue
         
-        # Get the total number of nodes in the original file
-        numNodes = self.numNodes
+            fileID = int(datFileName.split('_')[1].split('.')[0])
+            cleanFileName = self.cleanPrefix + '_' + datFileName
+            
+            # Create the cleaned file inside the cleaned directory
+            cleanFilePath = self.cleanDataDirPath / cleanFileName    
+            cleanFile = open(cleanFilePath, 'w')
         
-        numVox2copy = 0
-        # Check if the fileID is smaller than the number of voxels in printing order
-        if fileID < len(self.printing_order):
-            numVox2copy = fileID
-        else:
-            numVox2copy = len(self.printing_order)
+            # Open the original file
+            origFile = open(datFilePath, 'r')
         
-        origLines = origFile.readlines()
-        
-        # Transfer the file header to the cleaned file (i.e. the first 3 lines)
-        headerCount = 3
-        for i in range(headerCount):
-            if i<headerCount-1:
-                line = origLines[i]
-                cleanFile.write(line)
+            # Get the total number of nodes in the original file
+            numNodes = self.numNodes
+            
+            numVox2copy = 0
+            # Check if the fileID is smaller than the number of voxels in printing order
+            if fileID < len(self.printing_order):
+                numVox2copy = fileID
             else:
-                ''' 
-                example i=3 line : ZONE N=4913, E=4096, F=FEPOINT, ET=BRICK
-                Change the E=4096 to E=number of voxels to copy
-                '''
-                line = origLines[i]
-                words = line.split()
-                words[2] = 'E=' + str(numVox2copy) + ','
-                line = ' '.join(words)
-                # add a new line character
-                line = line + '\n'
+                numVox2copy = len(self.printing_order)
+            
+            origLines = origFile.readlines()
+            
+            # Transfer the file header to the cleaned file (i.e. the first 3 lines)
+            headerCount = 3
+            for i in range(headerCount):
+                if i<headerCount-1:
+                    line = origLines[i]
+                    cleanFile.write(line)
+                else:
+                    ''' 
+                    example i=3 line : ZONE N=4913, E=4096, F=FEPOINT, ET=BRICK
+                    Change the E=4096 to E=number of voxels to copy
+                    '''
+                    line = origLines[i]
+                    words = line.split()
+                    words[2] = 'E=' + str(numVox2copy) + ','
+                    line = ' '.join(words)
+                    # add a new line character
+                    line = line + '\n'
+                    cleanFile.write(line)
+                
+            # Transfer the grid nodal values to the cleaned file
+            for i in range(numNodes):
+                line = origLines[i + headerCount]
                 cleanFile.write(line)
             
-        # Transfer the grid nodal values to the cleaned file
-        for i in range(numNodes):
-            line = origLines[i + headerCount]
-            cleanFile.write(line)
-        
-        referenceLineNum = headerCount + numNodes
-        
-        # Travel through the printing order till we reach the original file ID and transfer the
-        # the corresponding grid connectivity to the cleaned file.
-        for i in range(numVox2copy):
-            voxID = self.printing_order[i]
-            print('voxID    :',voxID)
-            line = origLines[referenceLineNum + voxID]
-            cleanFile.write(line)
+            referenceLineNum = headerCount + numNodes
             
-        # Close the files
-        cleanFile.close()
-        origFile.close()
+            # Travel through the printing order till we reach the original file ID and transfer the
+            # the corresponding grid connectivity to the cleaned file.
+            for i in range(numVox2copy):
+                voxID = self.printing_order[i]
+                # print('voxID    :',voxID)
+                line = origLines[referenceLineNum + voxID]
+                cleanFile.write(line)
+                
+            # Close the files
+            cleanFile.close()
+            origFile.close()
         
     def readGeomFile(self):
         """
@@ -197,24 +209,8 @@ class voxelPrinting:
                 line = geomFile.readline()
                 words = line.split()
                 
-                for pNum in range(numPoints):
-                    x = 0
-                    y = 0
-                    z = 0
-                    y = int(words[pNum])
-                    x = int(words[pNum + 1])
-                    z = layerNum
-                    
-                    assert x >= 0 and x < self.numVoxels_xyz[0], "ERROR: x index out of bounds"
-                    assert y >= 0 and y < self.numVoxels_xyz[1], "ERROR: y index out of bounds"
-                    
-                    voxelID = self.ijk2ID(x, y, z, type='voxel')
-                    
-                    # Check if the voxel is already in the list
-                    if voxelID not in self.printing_order:
-                        self.printing_order.append(voxelID)
-                    
-            
+                self.fillPrintingOrder(words, numPoints, layerNum)
+                  
             for iNum in range(numInfills_layer):
                 infillNum = 0
                 numPoints = 0
@@ -231,22 +227,7 @@ class voxelPrinting:
                 line = geomFile.readline()
                 words = line.split()
                 
-                for pNum in range(numPoints):
-                    x = 0
-                    y = 0
-                    z = 0
-                    y = int(words[pNum])
-                    x = int(words[pNum + 1])
-                    z = layerNum
-                    
-                    assert x >= 0 and x < self.numVoxels_xyz[0], "ERROR: x index out of bounds"
-                    assert y >= 0 and y < self.numVoxels_xyz[1], "ERROR: y index out of bounds"
-                    
-                    voxelID = self.ijk2ID(x, y, z, type='voxel')
-                    
-                    # Check if the voxel is already in the list
-                    if voxelID not in self.printing_order:
-                        self.printing_order.append(voxelID)
+                self.fillPrintingOrder(words, numPoints, layerNum)
                     
         geomFile.close()
         
@@ -258,12 +239,30 @@ class voxelPrinting:
         print("Number of nodes: {}".format(self.numNodes))
         print("Number of unique filled voxels: {}".format(len(self.printing_order)))
         
+    def fillPrintingOrder(self, words, numPoints, layerNum):
+        for pNum in range(0, numPoints):
+            x = 0
+            y = 0
+            z = 0
+            y = int(words[2*pNum])
+            x = int(words[2*pNum + 1])
+            z = layerNum
+            
+            assert x >= 0 and x < self.numVoxels_xyz[0], "ERROR: x index out of bounds"
+            assert y >= 0 and y < self.numVoxels_xyz[1], "ERROR: y index out of bounds"
+            
+            voxelID = self.ijk2ID(x, y, z, type='voxel')
+            
+            # Check if the voxel is already in the list
+            if voxelID not in self.printing_order:
+                self.printing_order.append(voxelID)
+        
         
 if __name__=="__main__":
     # set up parameters
-    runDirID = 3
+    runDirID = 14
     verDirID = 1
-    datFileID = 5
+    # datFileID = 450
     geomName = 'LowResCube.ctr'
     
     # set up file paths
@@ -284,6 +283,6 @@ if __name__=="__main__":
     #     cleanDataDirPath.mkdir()
     
     # Create object
-    geom = voxelPrinting(geomFilePath, verDirPath, datFileID)
+    geom = voxelPrinting(geomFilePath, verDirPath)
     
     
