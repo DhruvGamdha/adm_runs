@@ -25,6 +25,7 @@ class voxelPrinting:
             self.cleanDataDirPath.mkdir()
         
         self.readGeomFile()
+        # self.saveCSVFile()
         self.createCleanFile()
         
     def ijk2ID(self, i, j, k, type='voxel'):
@@ -44,6 +45,50 @@ class voxelPrinting:
             return i + j * self.numNodes_xyz[0] + k * self.numNodes_xyz[0] * self.numNodes_xyz[1]
         
         return -1
+    
+    def ID2ijk(self, ID, type='voxel'):
+        
+        ''' 
+        Convert voxel ID to i, j, k indices
+        '''
+        
+        if type == 'voxel':
+            assert ID >= 0 and ID < self.numVoxels, "ERROR: voxel ID out of bounds"
+            k = ID // (self.numVoxels_xyz[0] * self.numVoxels_xyz[1])
+            j = (ID - k * self.numVoxels_xyz[0] * self.numVoxels_xyz[1]) // self.numVoxels_xyz[0]
+            i = ID - j * self.numVoxels_xyz[0] - k * self.numVoxels_xyz[0] * self.numVoxels_xyz[1]
+            return i, j, k
+        
+        if type == 'node':
+            assert ID >= 0 and ID < self.numNodes, "ERROR: node ID out of bounds"
+            k = ID // (self.numNodes_xyz[0] * self.numNodes_xyz[1])
+            j = (ID - k * self.numNodes_xyz[0] * self.numNodes_xyz[1]) // self.numNodes_xyz[0]
+            i = ID - j * self.numNodes_xyz[0] - k * self.numNodes_xyz[0] * self.numNodes_xyz[1]
+            return i, j, k
+        
+        return -1, -1, -1
+    
+    def saveCSVFile(self):
+        ''' 
+        Get indices of the voxels in printing order and save them in a csv file (i,j,k)
+        '''
+        
+        # Create the csv file
+        csvFileName = self.geomFilePath.stem + '.csv'
+        print('csv file name    :',csvFileName)
+        
+        csvFilePath = self.verDirPath / csvFileName
+        csvFile = open(csvFilePath, 'w')
+        
+        # Write the number of voxels in x, y, z directions to the csv file
+        csvFile.write(str(self.numVoxels_xyz[0]) + ',' + str(self.numVoxels_xyz[1]) + ',' + str(self.numVoxels_xyz[2]) + '\n')
+        
+        for ID in self.printing_order:
+            i, j, k = self.ID2ijk(ID)
+            # write i, j, k to csv file line by line: example: 0,0,0
+            csvFile.write(str(i) + ',' + str(j) + ',' + str(k) + '\n')
+             
+        csvFile.close()
         
     def createCleanFile(self):
         '''
@@ -260,10 +305,10 @@ class voxelPrinting:
         
 if __name__=="__main__":
     # set up parameters
-    runDirID = 15
+    runDirID = 19
     verDirID = 1
     geomName = 'LowResCube.ctr'
-    
+    # geomName = 'bunny_64.ctr'
     # set up file paths
     runDirTemplate  = "run_{:03d}"
     versDirTemplate = "config_{:03d}"
