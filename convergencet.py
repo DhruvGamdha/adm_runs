@@ -442,7 +442,6 @@ if __name__ == "__main__":
         exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
         runTemplate     = "local_run_{0:03d}"
         numNodes = 1
-        print("Number of processors:", mp.cpu_count())
         numCPU = 8
     # *******************************
     
@@ -452,9 +451,9 @@ if __name__ == "__main__":
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
         runTemplate     = "nova_run_{0:03d}"
         numNodes = 4
-        print("Number of processors:", mp.cpu_count())
         numCPU = 36
     # *******************************
+    print("Number of processors:", mp.cpu_count())
     # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
