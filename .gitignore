@@ -3,3 +3,4 @@ Geometry/
 config.txt
 convergence.py
 test.mcr
+*.out
