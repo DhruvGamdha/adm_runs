@@ -12,6 +12,7 @@ import glob
 from PyPDF2 import PdfMerger
 import shutil
 import multiprocessing as mp
+from clean_visualization import voxelPrinting
 
 
 def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
@@ -366,7 +367,7 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
         for dt_print in dt_print_list:
             paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
                         'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
-                            50, 'diffusivity': 0.003, 'printGeom': printGeom}
+                            20, 'diffusivity': 0.002, 'printGeom': printGeom}
             allcfgsParams.append(paraDict)
     
     
@@ -379,7 +380,7 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
 
 
 def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
-    runTemplate, versionTemplate, printGeom, numNodes, numCPU):
+    runTemplate, versionTemplate, printGeom, numNodes, numCPU, doFileCleanup = True):
     
     # printGeom = 'LowResCube.ctr'
     # printGeom = 'bunny_16.ctr'
@@ -410,7 +411,11 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
         shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
         shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
-    
+
+        if doFileCleanup:
+            geomFilePath = versionDirPathObj / printGeom
+            geom = voxelPrinting(geomFilePath, versionDirPathObj)
+        
         os.chdir(runDirPathObj)
     
     return
@@ -427,36 +432,45 @@ if __name__ == "__main__":
     # dts             = [dtp/3, dtp/4, dtp/5]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
     # numProcs        = [1, 2, 4, 8]
-    runTemplate     = "run_{0:03d}"
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
+    isComputeSystem_local = False
+    
     # ************ Local ************
-    # baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
-    # exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+    if isComputeSystem_local:
+        baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
+        exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+        runTemplate     = "local_run_{0:03d}"
+        numNodes = 1
+        print("Number of processors:", mp.cpu_count())
+        numCPU = 8
     # *******************************
     
     # ************ NOVA ************
-    baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/taly_run/tests")
-    exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
+    if not isComputeSystem_local:
+        baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/taly_run/tests")
+        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
+        runTemplate     = "nova_run_{0:03d}"
+        numNodes = 4
+        print("Number of processors:", mp.cpu_count())
+        numCPU = 36
     # *******************************
     # runDirPathObj   = baseDirPathObj / "run_007"
-    
-    numNodes = 4
-    
-    print("Number of processors:", mp.cpu_count())
-    numCPU = 36
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
     
+    
     # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_16.ctr', numNodes, numCPU)
+    #     versionTemplate, 'LowResCube.ctr', numNodes, numCPU, True)
     # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_32.ctr', numNodes, numCPU)
+    #     versionTemplate, 'bunny_16.ctr', numNodes, numCPU, True)
     runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_64.ctr', numNodes, numCPU)
+        versionTemplate, 'bunny_32_sparse2.ctr', numNodes, numCPU, True)
+    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+        versionTemplate, 'bunny_64_sparse2.ctr', numNodes, numCPU, True)
     # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_128.ctr', numNodes, numCPU)
+    #     versionTemplate, 'bunny_128.ctr', numNodes, numCPU, False)
     
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
@@ -464,4 +478,3 @@ if __name__ == "__main__":
         # versionTemplate)
     # evalWeakScaling(exePath, numProcs, baseDirPathObj, runTemplate, \
         # versionTemplate)
-
