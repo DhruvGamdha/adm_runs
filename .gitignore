@@ -4,3 +4,4 @@ config.txt
 convergence.py
 test.mcr
 *.out
+.vscode/
