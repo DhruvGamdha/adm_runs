@@ -360,15 +360,16 @@ def evalWeakScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, \
     merger.write("weakScaling.pdf")
     merger.close()
     
-def createAllConfigs2(dt_list, dt_print_list, printGeom):
+def createAllConfigs2(dt_list, dt_print_list, printGeom_list):
     allcfgsParams = []
     
     for dt in dt_list:
         for dt_print in dt_print_list:
-            paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
-                        'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
-                            20, 'diffusivity': 0.002, 'printGeom': printGeom}
-            allcfgsParams.append(paraDict)
+            for printGeom in printGeom_list:
+                paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
+                            'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
+                                20, 'diffusivity': 0.002, 'printGeom': printGeom}
+                allcfgsParams.append(paraDict)
     
     
     cfgList = []
@@ -380,12 +381,12 @@ def createAllConfigs2(dt_list, dt_print_list, printGeom):
 
 
 def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
-    runTemplate, versionTemplate, printGeom, numNodes, numCPU, doFileCleanup = True):
+    runTemplate, versionTemplate, printGeomList, numNodes, numCPU, doFileCleanup = True):
     
     # printGeom = 'LowResCube.ctr'
     # printGeom = 'bunny_16.ctr'
     
-    cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeom)
+    cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeomList)
     
     # cfg = createConfig(0.1, 1, 16, 3, 'linear', False, 2)
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
@@ -395,6 +396,7 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
     
     for i in range(len(cfg_list)):
         cfg = cfg_list[i]
+        printGeom = printGeomList[i]
         versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
         
         # Create data directory inside the version directory
@@ -434,7 +436,7 @@ if __name__ == "__main__":
     # numProcs        = [1, 2, 4, 8]
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    isComputeSystem_local = False
+    isComputeSystem_local = True
     
     # ************ Local ************
     if isComputeSystem_local:
@@ -454,22 +456,15 @@ if __name__ == "__main__":
         numCPU = 36
     # *******************************
     print("Number of processors:", mp.cpu_count())
+    # printGeomList = ['LowResCube.ctr', 'bunny_16.ctr', 'bunny_32_sparse2.ctr', 'bunny_64_sparse2.ctr']
+    printGeomList = ['bunny_16.ctr', 'bunny_16.ctr']
     # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
     
-    
-    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'LowResCube.ctr', numNodes, numCPU, True)
-    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_16.ctr', numNodes, numCPU, True)
     runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_32_sparse2.ctr', numNodes, numCPU, True)
-    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, 'bunny_64_sparse2.ctr', numNodes, numCPU, True)
-    # runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-    #     versionTemplate, 'bunny_128.ctr', numNodes, numCPU, False)
+        versionTemplate, printGeomList, numNodes, numCPU, True)
     
     # plot_vals(dts, errors)
     # getTime(runDirPathObj)
