@@ -200,6 +200,26 @@ def createConfig(paraDict, type=1):
                 "K_ambient": 0,
                 "outputExtension": '.dat'
             }
+    elif type == 3:     ## Non dimensional case
+        cfgDict = {
+            "ifBoxGrid": True,
+            "nsd": paraDict['nsd'],
+            "basisFunction": paraDict['basisFunction'],
+            "ifDD": paraDict['ifDD'],
+            "Lx": 1,
+            "Ly": 1,
+            "Lz": 1,
+            "typeOfIC": 1,
+            "dts_perVoxPrint": paraDict['dt_print_multiple'], 
+            "additional_time": paraDict['additional_time'],
+            "Tp": 0.5,
+            "Ta": 0,
+            "Tn": 1,
+            "print_geometry_file": paraDict['printGeom'],
+            "diffusivity": paraDict['diffusivity'],
+            "K_ambient": 0,
+            "outputExtension": '.dat'
+        }
     return cfgDict
 
 def createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2],\
@@ -360,43 +380,44 @@ def evalWeakScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, \
     merger.write("weakScaling.pdf")
     merger.close()
     
-def createAllConfigs2(dt_list, dt_print_list, printGeom_list):
+def createAllConfigs2(dt_print_multiple_list, diffusivity_list, printGeom_list):
     allcfgsParams = []
     
-    for dt in dt_list:
-        for dt_print in dt_print_list:
+    for diffusivity in diffusivity_list:                
+        for dt_print_multiple in dt_print_multiple_list:
             for printGeom in printGeom_list:
-                paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
-                            'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
-                                20, 'diffusivity': 0.002, 'printGeom': printGeom}
+                paraDict = {'dt_print_multiple': dt_print_multiple, 'nsd': 3, 'basisFunction':\
+                            'linear', 'ifDD': False, "additional_time": 0.20, \
+                                'diffusivity': diffusivity, 'printGeom': printGeom}
                 allcfgsParams.append(paraDict)
-    
     
     cfgList = []
     for cfgParams in allcfgsParams:
-        cfg = createConfig(cfgParams, type=2)
+        cfg = createConfig(cfgParams, type=3)
         cfgList.append(cfg)
     
     return cfgList
 
-
-def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
+def runVoxelPrinting(exePath, dt_print_multiple_list, diffusivity_list, baseDirPathObj, \
     runTemplate, versionTemplate, printGeomList, numNodes, numCPU, doFileCleanup = True):
     
-    # printGeom = 'LowResCube.ctr'
-    # printGeom = 'bunny_16.ctr'
-    
-    cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeomList)
-    
-    # cfg = createConfig(0.1, 1, 16, 3, 'linear', False, 2)
-    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
+    cfg_list        = createAllConfigs2(dt_print_multiple_list, diffusivity_list, printGeomList)
+    runDirPathObj   = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
-    # print the current directory
-    print(os.getcwd())
+    
+    print(os.getcwd())  # print the current directory
+    
+    executeCfgList(cfg_list, runDirPathObj, versionTemplate, baseDirPathObj, printGeomList, \
+        numNodes, numCPU, exePath, doFileCleanup)
+    
+    return
+
+def executeCfgList(cfg_list, runDirPathObj, versionTemplate, baseDirPathObj, printGeomList, \
+    numNodes, numCPU, exePath, doFileCleanup = True):
     
     for i in range(len(cfg_list)):
         cfg = cfg_list[i]
-        printGeom = printGeomList[i]
+        printGeom = cfg['print_geometry_file']
         versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
         
         # Create data directory inside the version directory
@@ -419,18 +440,17 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
             geom = voxelPrinting(geomFilePath, versionDirPathObj)
         
         os.chdir(runDirPathObj)
-    
+        
     return
-
-      
+    
 if __name__ == "__main__":
     
     # dts             = [0.2, 0.1, 0.05, 0.025, 0.0125]
     # errors          = [7.43E-07, 1.98E-07, 6.01E-08, 2.73E-08, 1.74E-08]
-    dtp             = 0.035
-    dt_print_list   = [dtp]
+    dt_print_multiple_list   = [3]
+    diffusivity_list = [0.02, 0.04, 0.08, 0.16, 0.32, 0.64]
     # dts = [0.1]
-    dts             = [dtp/3]
+    # dts             = [dtp/3]
     # dts             = [dtp/3, dtp/4, dtp/5]
     # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
     # numProcs        = [1, 2, 4, 8]
@@ -457,13 +477,13 @@ if __name__ == "__main__":
     # *******************************
     print("Number of processors:", mp.cpu_count())
     # printGeomList = ['LowResCube.ctr', 'bunny_16.ctr', 'bunny_32_sparse2.ctr', 'bunny_64_sparse2.ctr']
-    printGeomList = ['bunny_16.ctr', 'bunny_16.ctr']
+    printGeomList = ['bunny_32_sparse2.ctr']
     # runDirPathObj   = baseDirPathObj / "run_007"
     
     # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
         # versionTemplate)
     
-    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
+    runVoxelPrinting(exePath, dt_print_multiple_list, diffusivity_list, baseDirPathObj, runTemplate, \
         versionTemplate, printGeomList, numNodes, numCPU, True)
     
     # plot_vals(dts, errors)
