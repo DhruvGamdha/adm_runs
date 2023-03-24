@@ -29,8 +29,8 @@ def runExe(exePath, cfg, nProcs=1):
         libconf.dump(cfg, f)
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-ksp_rtol', \
-            '1E-13'], stdout=f) # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
+        subprocess.call(['mpirun', '-n', str(nProcs), exePath], stdout=f) 
+        # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
 
 def extractInfoFromOutputFile(outReadMode):
     
@@ -119,104 +119,76 @@ def createLatestDir(baseDirPathObj, dirTemplate):
     runDirPathObj.mkdir(parents=True, exist_ok=True)        # create the run directory
     return runDirPathObj    
 
-def createConfig(paraDict, type=1):
-    if type == 1:
-        cfgDict = {
-                "ifBoxGrid": True,
-                "nsd": paraDict['nsd'],
-                "basisFunction": paraDict['basisFunction'],
-                "ifDD": paraDict['ifDD'],
-                "Lx": 1,
-                "Ly": 1,
-                "Lz": 1,
-                "Nelemx": paraDict['n_elems'],
-                "Nelemy": paraDict['n_elems'],
-                "Nelemz": paraDict['n_elems'],
-                "typeOfIC": 1,
-                "dt": paraDict['dt'],
-                "nOfTS": int(paraDict['t']/paraDict['dt']),
-            }
-    elif type == 2:
-        cfgDict = {
-                "ifBoxGrid": True,
-                "nsd": paraDict['nsd'],
-                "basisFunction": paraDict['basisFunction'],
-                "ifDD": paraDict['ifDD'],
-                "Lx": 1,
-                "Ly": 1,
-                "Lz": 1,
-                "Nelemx": paraDict['n_elems'],
-                "Nelemy": paraDict['n_elems'],
-                "Nelemz": paraDict['n_elems'],
-                "typeOfIC": 1,
-                "dt": paraDict['dt'],
-                "dt_print": paraDict['dt_print'], 
-                "additional_time": paraDict['additional_time'],
-                "Tp": 50,
-                "Ta": 30,
-                "Tn": 70,
-                "print_geometry_file": paraDict['printGeom'],
-                "diffusivity": paraDict['diffusivity'],
-                "K_ambient": 0,
-                "outputExtension": '.dat'
-            }
+def createConfig(paraDict):    
+    cfgDict = {
+        "elemOrder": 1,
+        "AirDiffusivity": 0.1,
+        "mesh": {
+            "refine_lvl_base": 2,
+            "refine_lvl_channel_wall": 2,
+            "enable_subda": False,
+            "min": [0.0, 0.0, 0.0],
+            "max": [1.0, 1.0, 1.0],
+            "refine_walls": True
+        },
+        "solver_options_ht": {
+            "ksp_max_it": 500,
+            "ksp_type": "bcgs",
+            "pc_type": "asm",
+            "ksp_atol": 1e-15,
+            "ksp_rtol": 1e-15,
+            "ksp_converged_reason": ""
+        },
+        
+        "dt": 0.01,
+        "totalT": 7.0,
+        "numTimestepPerVoxel": 3,
+        "plateTemperature": 1.0,
+        "voxelTemperature": 2.0,
+        "voxelOrderFilename": paraDict['voxelOrderFilename'],
+        "voxelInfo": {
+            "voxelDiffusivity": 0.5,
+            "refine_level_voxel": paraDict['refine_level_voxel'],
+        },
+        "outputSpan": 1,
+        "checkpointFrequency": 1000,
+        "numberOfBackups": 2
+    }
+    
     return cfgDict
-
-def createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2],\
-    basisFunction_list  = ['linear'], ifDD=True, type=1):
     
-    ## create all combinations of the config files parameters as a list of dictionaries
-    allcfgsParams = []
-    for dt in dt_list:
-        for t in t_list:
-            for n_elems in nElems_list:
-                for nsd in nsd_list:
-                    for basisFunction in basisFunction_list:
-                        paraDict = {'dt': dt, 't': t, 'n_elems': n_elems, \
-                                    'nsd': nsd, 'basisFunction': basisFunction,\
-                                'ifDD': ifDD, 'type': type}
-                        allcfgsParams.append(paraDict)            
-    
-    cfgsList = []
-    for cfgParams in allcfgsParams:
-        cfg = createConfig(cfgParams , type=type)
-        cfgsList.append(cfg)
-    
-    return cfgsList
-    
-def createAllConfigs2(dt_list, dt_print_list, printGeom_list):
+def createAllConfigs(voxelFilename_list, voxelRes_list):
     allcfgsParams = []
     
-    for dt in dt_list:
-        for dt_print in dt_print_list:
-            for printGeom in printGeom_list:
-                paraDict = {'dt': dt, 'dt_print': dt_print, 'nsd': 3, 'basisFunction':\
-                            'linear', 'ifDD': False, 'n_elems': 16, "additional_time":\
-                                20, 'diffusivity': 0.002, 'printGeom': printGeom}
-                allcfgsParams.append(paraDict)
+    # Check length of lists are equal
+    if len(voxelFilename_list) != len(voxelRes_list):
+        raise Exception("Length of lists are not equal")
+    
+    for i in range(len(voxelFilename_list)):
+        voxelOrderFilename = voxelFilename_list[i]
+        refine_level_voxel = voxelRes_list[i]
+        paraDict = { 'voxelOrderFilename': voxelOrderFilename, \
+            'refine_level_voxel': refine_level_voxel}
+        allcfgsParams.append(paraDict)
     
     
     cfgList = []
     for cfgParams in allcfgsParams:
-        cfg = createConfig(cfgParams, type=2)
+        cfg = createConfig(cfgParams)
         cfgList.append(cfg)
     
     return cfgList
 
 
-def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
-    runTemplate, versionTemplate, printGeomList, numNodes, numCPU, doFileCleanup = True):
+def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
+    runTemplate, versionTemplate, numNodes, numCPU):
     
-    # printGeom = 'LowResCube.ctr'
-    # printGeom = 'bunny_16.ctr'
+    cfg_list = createAllConfigs(voxelFilename_list, voxelRes_list)
     
-    cfg_list = createAllConfigs2(dt_list, dt_print_list, printGeomList)
-    
-    # cfg = createConfig(0.1, 1, 16, 3, 'linear', False, 2)
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
-    # print the current directory
-    print(os.getcwd())
+    
+    print("cwd: ",os.getcwd())  # print the current working directory
     
     for i in range(len(cfg_list)):
         cfg = cfg_list[i]
@@ -227,7 +199,6 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         dataDirPathObj = createLatestDir(versionDirPathObj, 'data')
         os.chdir(dataDirPathObj)
         
-        # copy LowResCube.ctr file from baseDirPathObj to the current directory
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
         runExe(exePath, cfg, numNodes*numCPU)
@@ -238,9 +209,9 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
         shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
         shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
 
-        if doFileCleanup:
-            geomFilePath = versionDirPathObj / printGeom
-            geom = voxelPrinting(geomFilePath, versionDirPathObj)
+        # if doFileCleanup:
+        #     geomFilePath = versionDirPathObj / printGeom
+        #     geom = voxelPrinting(geomFilePath, versionDirPathObj)
         
         os.chdir(runDirPathObj)
     
@@ -259,8 +230,8 @@ if __name__ == "__main__":
     
     # ************ Local ************
     if isComputeSystem_local:
-        baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/runs/TSHT/plotting/python/tests")
-        exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/FEM/TalyFEM/taly_fem/cmake-build-release/tutorials/transient_heat/ht"
+        baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/tests")
+        exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-3d-dendrite_kt/adm"
         runTemplate     = "local_run_{0:03d}"
         numNodes = 1
         numCPU = 8
@@ -268,15 +239,15 @@ if __name__ == "__main__":
     
     # ************ NOVA ************
     if not isComputeSystem_local:
-        baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/taly_run/tests")
+        baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
         runTemplate     = "nova_run_{0:03d}"
         numNodes = 4
         numCPU = 36
     # *******************************
     print("Number of processors:", mp.cpu_count())
-    # printGeomList = ['LowResCube.ctr', 'bunny_16.ctr', 'bunny_32_sparse2.ctr', 'bunny_64_sparse2.ctr']
-    printGeomList = ['bunny_16.ctr', 'bunny_16.ctr']
+    voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
+    voxelRes_list = [5, 6, 7, 8]
     
-    runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
-        versionTemplate, printGeomList, numNodes, numCPU, True)
+    runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
+            runTemplate, versionTemplate, numNodes, numCPU)
