@@ -112,46 +112,6 @@ def getTime(runDirPathObj):
             'time_update': listOfDicts['time_update']}
     print(Time_dict)
     return Time_dict
-
-def evaluateSlope_loglog(x, y, xScale, yScale):
-    # x_log = [math.log10(x_i) for x_i in x]
-    # y_log = [math.log10(y_i) for y_i in y]
-    if xScale == 'log':
-        x_update = np.log10(x)
-    else:
-        x_update = x
-    if yScale == 'log':
-        y_update = np.log10(y)
-    else:
-        y_update = y
-    
-    m, b = np.polyfit(x_update, y_update, 1)
-    return m
-
-def plot_vals(dts, errors, fileName, xLabel, yLabel, xScale='log', yScale='log',\
-    makeComparison=False, plotAppend=False):
-    
-    slope = evaluateSlope_loglog(dts, errors, xScale, yScale)
-    plt.plot(dts, errors, marker='.' , label='slope: {0:.8f}'.format(slope))  # plot the convergence
-    if makeComparison:
-        # plot y = x, y = x^2, y = x^3
-        plt.plot(dts, dts, label='y = x')
-        plt.plot(dts, [dt**2 for dt in dts], label='y = x^2')
-        plt.plot(dts, [dt**3 for dt in dts], label='y = x^3')
-        
-    # plt.show()          # show the plot
-    plt.xscale(xScale)       # log log scale
-    plt.yscale(yScale)
-
-    plt.xlabel(xLabel)        # label the plot
-    plt.ylabel(yLabel)
-    
-    plt.title(fileName)
-    
-    plt.legend(bbox_to_anchor=(0.5, -0.3), loc='lower center', ncol=4) # add the legend
-    plt.savefig(fileName + '.pdf', dpi=300, format='pdf',bbox_inches='tight')        # save the plot
-    plt.close()          # close the plot
-      
 def createLatestDir(baseDirPathObj, dirTemplate):
     runDirIndex = updateTemplateIndex(baseDirPathObj, dirTemplate, 0)
     runDir = dirTemplate.format(runDirIndex)
@@ -224,142 +184,6 @@ def createAllConfigs(dt_list, t_list = [1], nElems_list = [256], nsd_list = [2],
     
     return cfgsList
     
-def runTemporalConvergenceExec(exePath, dt_list, baseDirPathObj, runTemplate, \
-    versionTemplate):
-    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
-    os.chdir(runDirPathObj) # change to the run directory
-    
-    cfg_list = createAllConfigs(dt_list, t_list = [1], nElems_list = [256], \
-        nsd_list = [2], basisFunction_list  = ['linear'])
-    
-    for cfg in cfg_list:
-        versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
-        os.chdir(versionDirPathObj) # change to the version directory
-        runExe(exePath, cfg, 8)     # run the executable
-        # errors.append(get_error(exePath, cfg))
-        os.chdir(runDirPathObj)
-
-    errors =  getError(runDirPathObj)
-    
-    print("Errors: " + ", ".join(["{0:.2E}".format(e) for e in errors]))
-    xscale = 'log'
-    yscale = 'log'
-    plot_vals(dt_list,      errors,     'transient_time_convergence',      \
-        'dt', 'l2_error', xScale=xscale, yScale=yscale, makeComparison=True)                 # plot the convergence
-    plot_vals(dt_list[:4],  errors[:4], 'transient_time_convergence_4dts', \
-        'dt', 'l2_error', xScale=xscale, yScale=yscale, makeComparison=True)    # plot the convergence for the first 3 dt values
-    
-
-def evalStrongScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, \
-    versionTemplate):
-    
-    cgfParaDict = { 'dt' : 0.1,
-                    't' : 1,
-                    'n_elems' : 512,
-                    'nsd' : 2,
-                    'basisFunction' : 'linear',
-                    'ifDD' : False}
-    
-    cfg = createConfig(cgfParaDict, type=1)
-    
-    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
-    os.chdir(runDirPathObj) # change to the run directory
-    
-    for numProcs in numProcs_list:
-        versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
-        os.chdir(versionDirPathObj)
-        runExe(exePath, cfg, numProcs)
-        os.chdir(runDirPathObj)
-    
-    timeDict = getAllInfo(runDirPathObj)
-    
-    # Divide the time by the time at 1 processor
-    timeDict['time_solve']      =  [ timeDict['time_solve'][0]      / x \
-        for x in timeDict['time_solve']]
-    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0]   / x \
-        for x in timeDict['time_assemble']]
-    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0]        / x \
-        for x in timeDict['time_ksp']]
-    timeDict['time_update']     =  [ timeDict['time_update'][0]     / x \
-        for x in timeDict['time_update']]
-    
-    xlabel = 'Number of Processors'
-    ylabel = 'Scaling (t0/t)'
-    xscale = 'linear'
-    yscale = 'linear'
-    
-    plot_vals(numProcs_list, timeDict['time_solve'] ,   'time_solve',   xlabel, \
-        ylabel, xScale=xscale, yScale=yscale, makeComparison=False, \
-            plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble',xlabel, \
-        ylabel, xScale=xscale, yScale=yscale, makeComparison=False, \
-            plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_ksp'],      'time_ksp',     xlabel, \
-        ylabel, xScale=xscale, yScale=yscale, makeComparison=False, \
-            plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_update'],   'time_update',  xlabel, \
-        ylabel, xScale=xscale, yScale=yscale, makeComparison=False, \
-            plotAppend=True)
-    
-    # Read all the pdf files in the run directory and combine them into a single pdf file
-    pdfs = glob.glob("*.pdf")
-    merger = PdfMerger()
-    for pdf in pdfs:
-        merger.append(pdf)
-    merger.write("strongScaling.pdf")
-    merger.close()
-
-def evalWeakScaling(exePath, numProcs_list, baseDirPathObj, runTemplate, \
-    versionTemplate):
-    
-    nElem_list = [64, 128, 256, 512]
-    cfg_list = createAllConfigs([0.1], t_list = [1], nElems_list = nElem_list, \
-        nsd_list = [2], basisFunction_list  = ['linear'])
-    
-    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
-    os.chdir(runDirPathObj) # change to the run directory
-    
-    for i in range(len(cfg_list)):
-        cfg = cfg_list[i]
-        numProcs = numProcs_list[i]
-        versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
-        os.chdir(versionDirPathObj)
-        runExe(exePath, cfg, numProcs)
-        os.chdir(runDirPathObj)
-    
-    timeDict = getAllInfo(runDirPathObj)
-     
-    # Divide the time by the time at 1 processor
-    timeDict['time_solve']      =  [ timeDict['time_solve'][0]      / x  \
-        for x in timeDict['time_solve']]
-    timeDict['time_assemble']   =  [ timeDict['time_assemble'][0]   / x  \
-        for x in timeDict['time_assemble']]
-    timeDict['time_ksp']        =  [ timeDict['time_ksp'][0]        / x  \
-        for x in timeDict['time_ksp']]
-    timeDict['time_update']     =  [ timeDict['time_update'][0]     / x  \
-        for x in timeDict['time_update']]
-    
-    plot_vals(numProcs_list, timeDict['time_solve'],    'time_solve',   \
-        'numProcs', 'time (s)', xScale='linear', yScale='linear', \
-            makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_assemble'], 'time_assemble',\
-        'numProcs', 'time (s)', xScale='linear', yScale='linear', \
-            makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_ksp'],      'time_ksp',     \
-        'numProcs', 'time (s)', xScale='linear', yScale='linear', \
-            makeComparison=False, plotAppend=True)
-    plot_vals(numProcs_list, timeDict['time_update'],   'time_update',  \
-        'numProcs', 'time (s)', xScale='linear', yScale='linear', \
-            makeComparison=False, plotAppend=True)
-    
-    # Read all the pdf files in the run directory and combine them into a single pdf file
-    pdfs = glob.glob("*.pdf")
-    merger = PdfMerger()
-    for pdf in pdfs:
-        merger.append(pdf)
-    merger.write("weakScaling.pdf")
-    merger.close()
-    
 def createAllConfigs2(dt_list, dt_print_list, printGeom_list):
     allcfgsParams = []
     
@@ -425,14 +249,9 @@ def runVoxelPrinting(exePath, dt_list, dt_print_list, baseDirPathObj, \
       
 if __name__ == "__main__":
     
-    # dts             = [0.2, 0.1, 0.05, 0.025, 0.0125]
-    # errors          = [7.43E-07, 1.98E-07, 6.01E-08, 2.73E-08, 1.74E-08]
     dtp             = 0.035
     dt_print_list   = [dtp]
-    # dts = [0.1]
     dts             = [dtp/3]
-    # dts             = [dtp/3, dtp/4, dtp/5]
-    # errors          = [7.58E-07, 1.95E-07, 5.07E-08]
     # numProcs        = [1, 2, 4, 8]
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
@@ -458,17 +277,6 @@ if __name__ == "__main__":
     print("Number of processors:", mp.cpu_count())
     # printGeomList = ['LowResCube.ctr', 'bunny_16.ctr', 'bunny_32_sparse2.ctr', 'bunny_64_sparse2.ctr']
     printGeomList = ['bunny_16.ctr', 'bunny_16.ctr']
-    # runDirPathObj   = baseDirPathObj / "run_007"
-    
-    # runTemporalConvergenceExec(exePath, dts, baseDirPathObj, runTemplate, \
-        # versionTemplate)
     
     runVoxelPrinting(exePath, dts, dt_print_list, baseDirPathObj, runTemplate, \
         versionTemplate, printGeomList, numNodes, numCPU, True)
-    
-    # plot_vals(dts, errors)
-    # getTime(runDirPathObj)
-    # evalStrongScaling(exePath, numProcs, baseDirPathObj, runTemplate, \
-        # versionTemplate)
-    # evalWeakScaling(exePath, numProcs, baseDirPathObj, runTemplate, \
-        # versionTemplate)
