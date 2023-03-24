@@ -126,10 +126,10 @@ def createConfig(paraDict):
         "mesh": {
             "refine_lvl_base": 2,
             "refine_lvl_channel_wall": 2,
-            "enable_subda": False,
+            "enable_subda": "false",
             "min": [0.0, 0.0, 0.0],
             "max": [1.0, 1.0, 1.0],
-            "refine_walls": True
+            "refine_walls": "true"
         },
         "solver_options_ht": {
             "ksp_max_it": 500,
@@ -192,7 +192,7 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
     
     for i in range(len(cfg_list)):
         cfg = cfg_list[i]
-        printGeom = printGeomList[i]
+        printGeom = voxelFilename_list[i]
         versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
         
         # Create data directory inside the version directory
@@ -220,13 +220,10 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
       
 if __name__ == "__main__":
     
-    dtp             = 0.035
-    dt_print_list   = [dtp]
-    dts             = [dtp/3]
     # numProcs        = [1, 2, 4, 8]
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    isComputeSystem_local = True
+    isComputeSystem_local = False
     
     # ************ Local ************
     if isComputeSystem_local:
@@ -240,14 +237,16 @@ if __name__ == "__main__":
     # ************ NOVA ************
     if not isComputeSystem_local:
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
-        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/taly_4_3dprinting/build/tutorials/transient_heat/ht"
+        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
-        numNodes = 4
-        numCPU = 36
+        numNodes = 1
+        numCPU = 16
     # *******************************
     print("Number of processors:", mp.cpu_count())
-    voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
-    voxelRes_list = [5, 6, 7, 8]
+    # voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
+    # voxelRes_list = [5, 6, 7, 8]
+    voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv']
+    voxelRes_list = [5, 6, 7]
     
     runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
             runTemplate, versionTemplate, numNodes, numCPU)

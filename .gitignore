@@ -6,3 +6,4 @@ test.mcr
 *.out
 .vscode/
 csvFiles/
+__pycache__/
