@@ -226,7 +226,7 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
         shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
         shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
-        shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
+        # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
 
         # if doFileCleanup:
         #     geomFilePath = versionDirPathObj / printGeom
