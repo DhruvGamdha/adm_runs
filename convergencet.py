@@ -14,6 +14,9 @@ import shutil
 import multiprocessing as mp
 from clean_visualization import voxelPrinting
 
+# measure process time
+import time
+
 
 def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
     if versionIndex <= 0:
@@ -151,7 +154,7 @@ def createConfig(paraDict):
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
         "outputSpan": 1,
-        "checkpointFrequency": 1000,
+        "checkpointFrequency": 100,
         "numberOfBackups": 2
     }
     
@@ -190,7 +193,13 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
     
     print("cwd: ",os.getcwd())  # print the current working directory
     
+    # Create a timetaken.txt file to store the time taken for each version
+    timeTakenFile = open("timetaken.txt", "w")
+    
     for i in range(len(cfg_list)):
+        
+        start = time.time()
+        
         cfg = cfg_list[i]
         printGeom = voxelFilename_list[i]
         versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
@@ -214,13 +223,18 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
         #     geom = voxelPrinting(geomFilePath, versionDirPathObj)
         
         os.chdir(runDirPathObj)
-    
+        
+        end = time.time()
+        timeTaken = end - start
+        timeTakenFile.write("Version {0:03d} took {1:0.2f} seconds to run \n".format(i, timeTaken))
+        timeTakenFile.flush()
+        
+    timeTakenFile.close()
     return
 
       
 if __name__ == "__main__":
     
-    # numProcs        = [1, 2, 4, 8]
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
     isComputeSystem_local = False
@@ -231,7 +245,7 @@ if __name__ == "__main__":
         exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-3d-dendrite_kt/adm"
         runTemplate     = "local_run_{0:03d}"
         numNodes = 1
-        numCPU = 8
+        numCPU = 1
     # *******************************
     
     # ************ NOVA ************
@@ -240,13 +254,14 @@ if __name__ == "__main__":
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
         numNodes = 1
-        numCPU = 16
+        numCPU = 8
     # *******************************
     print("Number of processors:", mp.cpu_count())
     # voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
     # voxelRes_list = [5, 6, 7, 8]
-    voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv']
-    voxelRes_list = [5, 6, 7]
+    voxelFilename_list = ['bunny_64_sparse2.csv', 'bunny_128_sparse2.csv']
+    voxelRes_list = [6, 7]
+    # numProcs      = [8, 16, 64, 72]
     
     runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
             runTemplate, versionTemplate, numNodes, numCPU)
