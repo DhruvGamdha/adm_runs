@@ -27,13 +27,17 @@ def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
                 break
     return versionIndex
 
-def runExe(exePath, cfg, nProcs=1):
+def startRun(exePath, cfg, nProcs=1):
     with open('config.txt', 'w') as f:
         libconf.dump(cfg, f)
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
         subprocess.call(['mpirun', '-n', str(nProcs), exePath], stdout=f) 
         # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
+
+def resumeRun(exePath, nProcs):
+    with open('output.txt', 'a') as f:                              # run the program and save the output to output.txt
+        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint'], stdout=f) 
 
 def extractInfoFromOutputFile(outReadMode):
     
@@ -210,7 +214,11 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
         
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
-        runExe(exePath, cfg, numNodes*numCPU)
+        startRun(exePath, cfg, 8)
+        resumeRun(exePath, 16)
+        resumeRun(exePath, 32)
+        resumeRun(exePath, 64)
+        resumeRun(exePath, 72)
         
         # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
@@ -244,8 +252,8 @@ if __name__ == "__main__":
         baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/tests")
         exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-3d-dendrite_kt/adm"
         runTemplate     = "local_run_{0:03d}"
-        numNodes = 1
-        numCPU = 1
+        # numNodes = 1
+        # numCPU = 1
     # *******************************
     
     # ************ NOVA ************
@@ -253,15 +261,15 @@ if __name__ == "__main__":
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
-        numNodes = 1
-        numCPU = 8
+        # numNodes = 1
+        # numCPU = 8
     # *******************************
     print("Number of processors:", mp.cpu_count())
     # voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
     # voxelRes_list = [5, 6, 7, 8]
-    voxelFilename_list = ['bunny_64_sparse2.csv', 'bunny_128_sparse2.csv']
-    voxelRes_list = [6, 7]
+    voxelFilename_list = ['bunny_64_sparse2.csv']
+    voxelRes_list = [6]
     # numProcs      = [8, 16, 64, 72]
     
     runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
-            runTemplate, versionTemplate, numNodes, numCPU)
+            runTemplate, versionTemplate)
