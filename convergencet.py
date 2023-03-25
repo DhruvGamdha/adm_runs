@@ -161,7 +161,8 @@ def createConfig(paraDict):
         },
         "outputSpan": 1,
         "checkpointFrequency": 100,
-        "numberOfBackups": 2
+        "numberOfBackups": 2,
+        "stepRunBreakPoints_V": [10000, 20000, 40000, 80000]
     }
     
     return cfgDict
