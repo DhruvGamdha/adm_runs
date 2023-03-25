@@ -156,7 +156,7 @@ def createConfig(paraDict):
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
         "voxelInfo": {
-            "voxelDiffusivity": 0.08,
+            "voxelDiffusivity": 0.0008,
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
         "outputSpan": 1,
@@ -203,8 +203,9 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
     timeTakenFile = open("timetaken.txt", "w")
     
     for i in range(len(cfg_list)):
-        
-        start = time.time()
+        # wrtie version number to the timetaken.txt file
+        timeTakenFile.write("Version: " + str(i) + " ")
+        startOverall = time.time()
         
         cfg = cfg_list[i]
         printGeom = voxelFilename_list[i]
@@ -216,11 +217,21 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
         
         shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
         
+        # measure time across the startRun
+        startRun_time = time.time()
         startRun(exePath, cfg, 8)
-        resumeRun(exePath, 16)
-        resumeRun(exePath, 32)
-        resumeRun(exePath, 64)
-        resumeRun(exePath, 72)
+        endRun_time = time.time()
+        timeTakenFile.write("startRun took " + str(endRun_time - startRun_time) + " seconds. \n")
+        timeTakenFile.flush()
+        
+        for j in [16, 32, 64, 72]:
+            # measure time across the resumeRun
+            startResume_time = time.time()
+            resumeRun(exePath, j)
+            endResume_time = time.time()
+            # write time taken for resumeRun along with j value to the timetaken.txt file
+            timeTakenFile.write("resumeRun with j = " + str(j) + " took " + str(endResume_time - startResume_time) + " seconds. \n")
+            timeTakenFile.flush()
         
         # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
         shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
@@ -234,9 +245,9 @@ def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj,
         
         os.chdir(runDirPathObj)
         
-        end = time.time()
-        timeTaken = end - start
-        timeTakenFile.write("Version {0:03d} took {1:0.2f} seconds to run \n".format(i, timeTaken))
+        endOverall = time.time()
+        timeTakenOverall = endOverall - startOverall
+        timeTakenFile.write("Version {0:03d} overall took {1:0.2f} seconds to run \n".format(i, timeTakenOverall))
         timeTakenFile.flush()
         
     timeTakenFile.close()
