@@ -154,7 +154,7 @@ def createConfig(paraDict):
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
         "voxelInfo": {
-            "voxelDiffusivity": 0.5,
+            "voxelDiffusivity": 0.08,
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
         "outputSpan": 1,
