@@ -188,7 +188,7 @@ def createAllConfigs(voxelFilename_list, voxelRes_list):
 
 
 def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
-    runTemplate, versionTemplate, numNodes, numCPU):
+    runTemplate, versionTemplate):
     
     cfg_list = createAllConfigs(voxelFilename_list, voxelRes_list)
     
