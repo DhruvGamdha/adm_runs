@@ -32,12 +32,14 @@ def startRun(exePath, cfg, nProcs=1):
         libconf.dump(cfg, f)
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath], stdout=f) 
+        subprocess.call(['mpirun', '-np', str(nProcs), exePath], stdout=f) 
         # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
 
 def resumeRun(exePath, nProcs):
     with open('output.txt', 'a') as f:                              # run the program and save the output to output.txt
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint'], stdout=f) 
+        # add exepat and nprocs to the output file
+        f.write(' '.join(['mpirun', '-np', str(nProcs), exePath, '-resume_from_checkpoint \n']))
+        subprocess.call(['mpirun', '-np', str(nProcs), exePath, '-resume_from_checkpoint'], stdout=f) 
 
 def extractInfoFromOutputFile(outReadMode):
     
