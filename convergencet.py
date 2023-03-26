@@ -234,7 +234,7 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
     
     endOverall = time.time()
     timeTakenOverall = endOverall - startOverall
-    timeTakenFile.write("Version {0:03d} overall took {1:0.2f} seconds to run \n".format(i, timeTakenOverall))
+    timeTakenFile.write("Overall time {1:0.2f} seconds for the simulation \n".format(timeTakenOverall))
     timeTakenFile.flush()
         
     timeTakenFile.close()
@@ -286,6 +286,7 @@ if __name__ == "__main__":
         # numCPU = 8
     # *******************************
     print("Number of processors:", mp.cpu_count())
-    paraDict = geometryParaCombination("bunny_64_sparse2.csv", 2)
+    # paraDict = geometryParaCombination("bunny_64_sparse2.csv", 2)
+    paraDict = geometryParaCombination("bunny_128_sparse2.csv", 8)
     
     runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate)
