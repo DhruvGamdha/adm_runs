@@ -259,6 +259,15 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
             'outputSpan': 1000
         }
+    
+    if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
+        paraDict = {
+            'voxelOrderFilename': 'bunny_128_sparse2.csv',
+            'refine_level_voxel': 7,
+            'stepRunNumProcs': [16, 32, 96, 96, 144, 144],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
+            'outputSpan': 1000
+        }
         
     return paraDict
               
@@ -287,6 +296,7 @@ if __name__ == "__main__":
     # *******************************
     print("Number of processors:", mp.cpu_count())
     # paraDict = geometryParaCombination("bunny_64_sparse2.csv", 2)
-    paraDict = geometryParaCombination("bunny_128_sparse2.csv", 8)
+    # paraDict = geometryParaCombination("bunny_128_sparse2.csv", 8)
+    paraDict = geometryParaCombination("bunny_128_sparse2.csv", 4)
     
     runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate)
