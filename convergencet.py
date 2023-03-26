@@ -32,14 +32,17 @@ def startRun(exePath, cfg, nProcs=1):
         libconf.dump(cfg, f)
     
     with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
-        subprocess.call(['mpirun', '-np', str(nProcs), exePath], stdout=f) 
+        f.write(' '.join(['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']))
+        f.flush()
+        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings'], stdout=f) 
         # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
 
 def resumeRun(exePath, nProcs):
     with open('output.txt', 'a') as f:                              # run the program and save the output to output.txt
         # add exepat and nprocs to the output file
-        f.write(' '.join(['mpirun', '-np', str(nProcs), exePath, '-resume_from_checkpoint \n']))
-        subprocess.call(['mpirun', '-np', str(nProcs), exePath, '-resume_from_checkpoint'], stdout=f) 
+        f.write(' '.join(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings','\n']))
+        f.flush()
+        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings'], stdout=f) 
 
 def extractInfoFromOutputFile(outReadMode):
     
@@ -159,102 +162,106 @@ def createConfig(paraDict):
             "voxelDiffusivity": 0.0008,
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
-        "outputSpan": 1,
+        "outputSpan": paraDict['outputSpan'],
         "checkpointFrequency": 100,
         "numberOfBackups": 2,
-        "stepRunBreakPoints_V": [10000, 20000, 40000, 80000]
+        "stepRunBreakPoints_V": paraDict['stepRunBreakPoints_V']
     }
     
     return cfgDict
     
-def createAllConfigs(voxelFilename_list, voxelRes_list):
-    allcfgsParams = []
+def createAllConfigs(paraDict):
+    cfgParaDict = { 'voxelOrderFilename': paraDict['voxelOrderFilename'], \
+        'refine_level_voxel': paraDict['refine_level_voxel'],
+        'stepRunBreakPoints_V': paraDict['stepRunBreakPoints_V'],
+        'outputSpan': paraDict['outputSpan']}
     
-    # Check length of lists are equal
-    if len(voxelFilename_list) != len(voxelRes_list):
-        raise Exception("Length of lists are not equal")
+    cfg = createConfig(cfgParaDict)
     
-    for i in range(len(voxelFilename_list)):
-        voxelOrderFilename = voxelFilename_list[i]
-        refine_level_voxel = voxelRes_list[i]
-        paraDict = { 'voxelOrderFilename': voxelOrderFilename, \
-            'refine_level_voxel': refine_level_voxel}
-        allcfgsParams.append(paraDict)
-    
-    
-    cfgList = []
-    for cfgParams in allcfgsParams:
-        cfg = createConfig(cfgParams)
-        cfgList.append(cfg)
-    
-    return cfgList
+    return cfg
 
-
-def runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
-    runTemplate, versionTemplate):
+def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate):
     
-    cfg_list = createAllConfigs(voxelFilename_list, voxelRes_list)
+    cfg = createAllConfigs(paraDict)
     
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
     
     print("cwd: ",os.getcwd())  # print the current working directory
     
+    printGeom = paraDict['voxelOrderFilename']
+    
     # Create a timetaken.txt file to store the time taken for each version
     timeTakenFile = open("timetaken.txt", "w")
+    timeTakenFile.write("Geometry file: " + printGeom + "\n")
+    startOverall = time.time()
     
-    for i in range(len(cfg_list)):
-        # wrtie version number to the timetaken.txt file
-        timeTakenFile.write("Version: " + str(i) + " ")
-        startOverall = time.time()
-        
-        cfg = cfg_list[i]
-        printGeom = voxelFilename_list[i]
-        versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
-        
-        # Create data directory inside the version directory
-        dataDirPathObj = createLatestDir(versionDirPathObj, 'data')
-        os.chdir(dataDirPathObj)
-        
-        shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
-        
-        # measure time across the startRun
-        startRun_time = time.time()
-        startRun(exePath, cfg, 8)
-        endRun_time = time.time()
-        timeTakenFile.write("startRun took " + str(endRun_time - startRun_time) + " seconds. \n")
+    versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
+    
+    # Create data directory inside the version directory
+    dataDirPathObj = createLatestDir(versionDirPathObj, 'data')
+    os.chdir(dataDirPathObj)
+    
+    shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
+    
+    # measure time across the startRun
+    startRun_time = time.time()
+    startRun(exePath, cfg, 8)
+    endRun_time = time.time()
+    timeTakenFile.write("startRun took " + str(endRun_time - startRun_time) + " seconds. \n")
+    timeTakenFile.flush()
+    
+    for j in paraDict["stepRunNumProcs"]:
+        # measure time across the resumeRun
+        startResume_time = time.time()
+        resumeRun(exePath, j)
+        endResume_time = time.time()
+        # write time taken for resumeRun along with j value to the timetaken.txt file
+        timeTakenFile.write("resumeRun with j = " + str(j) + " took " + str(endResume_time - startResume_time) + " seconds. \n")
         timeTakenFile.flush()
-        
-        for j in [16, 32, 64, 72]:
-            # measure time across the resumeRun
-            startResume_time = time.time()
-            resumeRun(exePath, j)
-            endResume_time = time.time()
-            # write time taken for resumeRun along with j value to the timetaken.txt file
-            timeTakenFile.write("resumeRun with j = " + str(j) + " took " + str(endResume_time - startResume_time) + " seconds. \n")
-            timeTakenFile.flush()
-        
-        # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
-        shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
-        shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
-        shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
-        # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
+    
+    # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
+    shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
+    shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
+    shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
+    # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
 
-        # if doFileCleanup:
-        #     geomFilePath = versionDirPathObj / printGeom
-        #     geom = voxelPrinting(geomFilePath, versionDirPathObj)
-        
-        os.chdir(runDirPathObj)
-        
-        endOverall = time.time()
-        timeTakenOverall = endOverall - startOverall
-        timeTakenFile.write("Version {0:03d} overall took {1:0.2f} seconds to run \n".format(i, timeTakenOverall))
-        timeTakenFile.flush()
+    # if doFileCleanup:
+    #     geomFilePath = versionDirPathObj / printGeom
+    #     geom = voxelPrinting(geomFilePath, versionDirPathObj)
+    
+    os.chdir(runDirPathObj)
+    
+    endOverall = time.time()
+    timeTakenOverall = endOverall - startOverall
+    timeTakenFile.write("Version {0:03d} overall took {1:0.2f} seconds to run \n".format(i, timeTakenOverall))
+    timeTakenFile.flush()
         
     timeTakenFile.close()
     return
 
-      
+def geometryParaCombination(geoName, numNodes):
+    
+    if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
+        paraDict = {
+            'voxelOrderFilename': 'bunny_64_sparse2.csv',
+            'refine_level_voxel': 6,
+            'stepRunNumProcs': [16, 32, 72, 72],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
+            'outputSpan': 1000
+        }
+    
+    if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
+        paraDict = {
+            'voxelOrderFilename': 'bunny_128_sparse2.csv',
+            'refine_level_voxel': 7,
+            'stepRunNumProcs': [16, 32, 96, 192, 288, 288],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
+            'outputSpan': 1000
+        }
+        
+    return paraDict
+              
 if __name__ == "__main__":
     
     versionTemplate = "config_{0:03d}"
@@ -275,15 +282,10 @@ if __name__ == "__main__":
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
-        # numNodes = 1
+        # numNodes = 2
         # numCPU = 8
     # *******************************
     print("Number of processors:", mp.cpu_count())
-    # voxelFilename_list = ['bunny_32_sparse2.csv', 'bunny_64_sparse2.csv', 'bunny_128_sparse2.csv', 'bunny_256_sparse2.csv']
-    # voxelRes_list = [5, 6, 7, 8]
-    voxelFilename_list = ['bunny_64_sparse2.csv']
-    voxelRes_list = [6]
-    # numProcs      = [8, 16, 64, 72]
+    paraDict = geometryParaCombination("bunny_64_sparse2.csv", 2)
     
-    runVoxelPrinting(exePath, voxelFilename_list, voxelRes_list, baseDirPathObj, \
-            runTemplate, versionTemplate)
+    runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate)
