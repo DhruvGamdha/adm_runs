@@ -234,13 +234,22 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
     
     endOverall = time.time()
     timeTakenOverall = endOverall - startOverall
-    timeTakenFile.write("Overall time {1:0.2f} seconds for the simulation \n".format(timeTakenOverall))
+    timeTakenFile.write("Overall time {0:.2f} seconds \n".format(timeTakenOverall))
     timeTakenFile.flush()
         
     timeTakenFile.close()
     return
 
 def geometryParaCombination(geoName, numNodes):
+    
+    if geoName == "bunny_32_sparse2.csv" and numNodes == 1:
+        paraDict = {
+            'voxelOrderFilename': 'bunny_32_sparse2.csv',
+            'refine_level_voxel': 5,
+            'stepRunNumProcs': [8],
+            'stepRunBreakPoints_V': [20000],
+            'outputSpan': 2
+        }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
         paraDict = {
