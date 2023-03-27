@@ -13,6 +13,7 @@ from PyPDF2 import PdfMerger
 import shutil
 import multiprocessing as mp
 from clean_visualization import voxelPrinting
+import sys
 
 # measure process time
 import time
@@ -159,11 +160,11 @@ def createConfig(paraDict):
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
         "voxelInfo": {
-            "voxelDiffusivity": 0.0008,
+            "voxelDiffusivity": paraDict['voxelDiffusivity'],
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
         "outputSpan": paraDict['outputSpan'],
-        "checkpointFrequency": 100,
+        "checkpointFrequency": 1,
         "numberOfBackups": 2,
         "stepRunBreakPoints_V": paraDict['stepRunBreakPoints_V']
     }
@@ -174,7 +175,8 @@ def createAllConfigs(paraDict):
     cfgParaDict = { 'voxelOrderFilename': paraDict['voxelOrderFilename'], \
         'refine_level_voxel': paraDict['refine_level_voxel'],
         'stepRunBreakPoints_V': paraDict['stepRunBreakPoints_V'],
-        'outputSpan': paraDict['outputSpan']}
+        'outputSpan': paraDict['outputSpan'],
+        "voxelDiffusivity": paraDict['voxelDiffusivity']}
     
     cfg = createConfig(cfgParaDict)
     
@@ -248,7 +250,18 @@ def geometryParaCombination(geoName, numNodes):
             'refine_level_voxel': 5,
             'stepRunNumProcs': [8],
             'stepRunBreakPoints_V': [20000],
-            'outputSpan': 2
+            'outputSpan': 2,
+            'voxelDiffusivity': 0.0008
+        }
+    
+    if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
+        paraDict = {
+            'voxelOrderFilename': 'bunny_64_sparse2.csv',
+            'refine_level_voxel': 6,
+            'stepRunNumProcs': [8],
+            'stepRunBreakPoints_V': [100000],
+            'outputSpan': 10,
+            'voxelDiffusivity': 0.0008/4
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
@@ -257,7 +270,8 @@ def geometryParaCombination(geoName, numNodes):
             'refine_level_voxel': 6,
             'stepRunNumProcs': [16, 32, 72, 72],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
-            'outputSpan': 1000
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/4
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
@@ -266,7 +280,8 @@ def geometryParaCombination(geoName, numNodes):
             'refine_level_voxel': 7,
             'stepRunNumProcs': [16, 32, 96, 192, 288, 288],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
-            'outputSpan': 1000
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
@@ -275,7 +290,8 @@ def geometryParaCombination(geoName, numNodes):
             'refine_level_voxel': 7,
             'stepRunNumProcs': [16, 32, 96, 96, 144, 144],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
-            'outputSpan': 1000
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
         }
         
     return paraDict
@@ -285,6 +301,14 @@ if __name__ == "__main__":
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
     isComputeSystem_local = False
+    
+    # Check the length of the command line arguments
+    if len(sys.argv) != 3:
+        geomName = "bunny_128_sparse2.csv"
+        numNodes = 8
+    else:
+        geomName = sys.argv[1]
+        numNodes = int(sys.argv[2])
     
     # ************ Local ************
     if isComputeSystem_local:
@@ -306,6 +330,7 @@ if __name__ == "__main__":
     print("Number of processors:", mp.cpu_count())
     # paraDict = geometryParaCombination("bunny_64_sparse2.csv", 2)
     # paraDict = geometryParaCombination("bunny_128_sparse2.csv", 8)
-    paraDict = geometryParaCombination("bunny_128_sparse2.csv", 4)
+    # paraDict = geometryParaCombination("bunny_128_sparse2.csv", 4)
+    paraDict = geometryParaCombination(geomName, numNodes)
     
     runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate)
