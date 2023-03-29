@@ -246,39 +246,69 @@ def geometryParaCombination(geoName, numNodes):
     
     if geoName == "bunny_32_sparse2.csv" and numNodes == 1:
         paraDict = {
-            'voxelOrderFilename': 'bunny_32_sparse2.csv',
+            'voxelOrderFilename': geoName,
             'refine_level_voxel': 5,
             'stepRunNumProcs': [8],
             'stepRunBreakPoints_V': [20000],
-            'outputSpan': 2,
+            'outputSpan': 100,
             'voxelDiffusivity': 0.0008
+        }
+        
+    if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 6,
+            'stepRunNumProcs': [16, 32, 72, 72],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
+            'outputSpan': 100,
+            'voxelDiffusivity': 0.0008/4
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
         paraDict = {
-            'voxelOrderFilename': 'bunny_64_sparse2.csv',
+            'voxelOrderFilename': geoName,
             'refine_level_voxel': 6,
             'stepRunNumProcs': [8],
             'stepRunBreakPoints_V': [100000],
-            'outputSpan': 10,
+            'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
         paraDict = {
-            'voxelOrderFilename': 'bunny_64_sparse2.csv',
+            'voxelOrderFilename': geoName,
             'refine_level_voxel': 6,
             'stepRunNumProcs': [16, 32, 72, 72],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
-            'outputSpan': 1000,
+            'outputSpan': 100,
+            'voxelDiffusivity': 0.0008/4
+        }
+        
+    if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 6,
+            'stepRunNumProcs': [16, 32, 72, 72],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
+            'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
         paraDict = {
-            'voxelOrderFilename': 'bunny_128_sparse2.csv',
+            'voxelOrderFilename': geoName,
             'refine_level_voxel': 7,
-            'stepRunNumProcs': [16, 32, 96, 192, 288, 288],
+            'stepRunNumProcs': [            16,    32,    96,    192,   288],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
+        }
+    
+    if geoName == "bunny_128_sparse2.csv" and numNodes == 6:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 7,
+            'stepRunNumProcs': [16, 32, 96, 216, 216, 216],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16
@@ -286,10 +316,60 @@ def geometryParaCombination(geoName, numNodes):
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
         paraDict = {
-            'voxelOrderFilename': 'bunny_128_sparse2.csv',
+            'voxelOrderFilename': geoName,
             'refine_level_voxel': 7,
-            'stepRunNumProcs': [16, 32, 96, 96, 144, 144],
+            'stepRunNumProcs': [16, 32, 72, 96, 144, 144],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
+        }
+    
+    if geoName == "bunny_256_sparse2.csv" and numNodes == 4:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 8,
+            'stepRunNumProcs': [            16,    32,    96,    144],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000 ],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
+        }
+        
+    if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 8,
+            'stepRunNumProcs': [            16,    32,    96,    144,   288],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16
+        }
+        
+    if geoName == "Moai_32.csv" and numNodes == 1:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 5,
+            'stepRunNumProcs': [8],
+            'stepRunBreakPoints_V': [20000],
+            'outputSpan': 2,
+            'voxelDiffusivity': 0.0008
+        }
+    
+    if geoName == "Moai_64.csv" and numNodes == 2:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 6,
+            'stepRunNumProcs': [16, 32, 72, 72],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
+            'outputSpan': 10,
+            'voxelDiffusivity': 0.0008/4
+        }
+    
+    if geoName == "Moai_128.csv" and numNodes == 8:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 7,
+            'stepRunNumProcs': [            16,    32,    96,    192,   288],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16
         }
