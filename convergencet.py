@@ -249,7 +249,7 @@ def geometryParaCombination(geoName, numNodes):
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 5,
             'stepRunNumProcs': [8],
-            'stepRunBreakPoints_V': [20000],
+            'stepRunBreakPoints_V': [1000000],
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008
         }
