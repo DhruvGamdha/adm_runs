@@ -393,7 +393,7 @@ if __name__ == "__main__":
     # ************ Local ************
     if isComputeSystem_local:
         baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/tests")
-        exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-3d-dendrite_kt/adm"
+        exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-release/adm"
         runTemplate     = "local_run_{0:03d}"
         # numNodes = 1
         # numCPU = 1
