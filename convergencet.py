@@ -155,7 +155,7 @@ def createConfig(paraDict):
         
         "dt": 0.01,
         "totalT": 7.0,
-        "numTimestepPerVoxel": 3,
+        "numTimestepPerVoxel": 2,
         "plateTemperature": 1.0,
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
@@ -364,11 +364,11 @@ def geometryParaCombination(geoName, numNodes):
             'voxelDiffusivity': 0.0008/4
         }
     
-    if geoName == "Moai_128.csv" and numNodes == 8:
+    if geoName == "Moai_128.csv" and numNodes == 5:
         paraDict = {
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 7,
-            'stepRunNumProcs': [            16,    32,    96,    192,   288],
+            'stepRunNumProcs': [            16,    32,    96,    192,   320],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16
