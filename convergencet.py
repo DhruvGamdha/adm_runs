@@ -39,6 +39,13 @@ def startRun(exePath, cfg, nProcs=1):
         # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
 
 def resumeRun(exePath, nProcs):
+    
+    ## remove the CheckPoint folder
+    shutil.rmtree('CheckPoint')
+    
+    ## Rename the CheckPoint_1 folder to CheckPoint
+    os.rename('CheckPoint_1', 'CheckPoint')
+    
     with open('output.txt', 'a') as f:                              # run the program and save the output to output.txt
         # add exepat and nprocs to the output file
         f.write(' '.join(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings','\n']))
@@ -132,7 +139,12 @@ def createLatestDir(baseDirPathObj, dirTemplate):
     runDirPathObj.mkdir(parents=True, exist_ok=True)        # create the run directory
     return runDirPathObj    
 
-def createConfig(paraDict):    
+def createConfig(paraDict):
+    
+    # Check if paraDict['checkpointFrequency'] exists and if not create it with a default value of 1
+    if 'checkpointFrequency' not in paraDict:
+        paraDict['checkpointFrequency'] = 1 
+        
     cfgDict = {
         "elemOrder": 1,
         "AirDiffusivity": 0.1,
@@ -148,14 +160,14 @@ def createConfig(paraDict):
             "ksp_max_it": 500,
             "ksp_type": "bcgs",
             "pc_type": "asm",
-            "ksp_atol": 1e-15,
-            "ksp_rtol": 1e-15,
+            "ksp_atol": 1e-6,
+            "ksp_rtol": 1e-6,
             "ksp_converged_reason": ""
         },
         
         "dt": 0.01,
         "totalT": 7.0,
-        "numTimestepPerVoxel": 2,
+        "numTimestepPerVoxel": 3,
         "plateTemperature": 1.0,
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
@@ -164,7 +176,7 @@ def createConfig(paraDict):
             "refine_level_voxel": paraDict['refine_level_voxel'],
         },
         "outputSpan": paraDict['outputSpan'],
-        "checkpointFrequency": 1,
+        "checkpointFrequency": paraDict['checkpointFrequency'],
         "numberOfBackups": 2,
         "stepRunBreakPoints_V": paraDict['stepRunBreakPoints_V']
     }
@@ -184,7 +196,7 @@ def createAllConfigs(paraDict):
 
 def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate):
     
-    cfg = createAllConfigs(paraDict)
+    cfg = createConfig(paraDict)
     
     runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
@@ -248,10 +260,11 @@ def geometryParaCombination(geoName, numNodes):
         paraDict = {
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 5,
-            'stepRunNumProcs': [8],
-            'stepRunBreakPoints_V': [1000000],
-            'outputSpan': 100,
-            'voxelDiffusivity': 0.0008
+            'stepRunNumProcs': [8, 8, 8, 8],
+            'stepRunBreakPoints_V': [1000, 2000, 4000, 8000],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008,
+            'checkpointFrequency': 10
         }
         
     if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
