@@ -17,16 +17,7 @@ import sys
 
 # measure process time
 import time
-
-
-def updateTemplateIndex(baseDirPathObj, versionDirTemplate, versionIndex):
-    if versionIndex <= 0:
-        versionIndex = 0
-        while True:
-            versionIndex += 1
-            if not (baseDirPathObj / versionDirTemplate.format(versionIndex)).exists():
-                break
-    return versionIndex
+from utils import createLatestDir
 
 def startRun(exePath, cfg, nProcs=1):
     with open('config.txt', 'w') as f:
@@ -132,12 +123,6 @@ def getTime(runDirPathObj):
             'time_update': listOfDicts['time_update']}
     print(Time_dict)
     return Time_dict
-def createLatestDir(baseDirPathObj, dirTemplate):
-    runDirIndex = updateTemplateIndex(baseDirPathObj, dirTemplate, 0)
-    runDir = dirTemplate.format(runDirIndex)
-    runDirPathObj = baseDirPathObj / runDir
-    runDirPathObj.mkdir(parents=True, exist_ok=True)        # create the run directory
-    return runDirPathObj    
 
 def createConfig(paraDict):
     
@@ -393,7 +378,7 @@ if __name__ == "__main__":
     
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    isComputeSystem_local = False
+    isComputeSystem_local = True
     
     # Check the length of the command line arguments
     if len(sys.argv) != 3:
