@@ -152,7 +152,8 @@ def createConfig(paraDict):
         
         "dt": 0.01,
         "totalT": 7.0,
-        "numTimestepPerVoxel": 3,
+        "numTimestepPerVoxel": 4,
+        "neumannBC":-0.1,
         "plateTemperature": 1.0,
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
