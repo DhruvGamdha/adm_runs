@@ -152,7 +152,8 @@ def createConfig(paraDict):
         
         "dt": 0.01,
         "totalT": 7.0,
-        "numTimestepPerVoxel": 3,
+        "numTimestepPerVoxel": 4,
+        "neumannBC":paraDict['neumannBC'],
         "plateTemperature": 1.0,
         "voxelTemperature": 2.0,
         "voxelOrderFilename": paraDict['voxelOrderFilename'],
@@ -249,7 +250,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunBreakPoints_V': [1000, 2000, 4000, 8000],
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008,
-            'checkpointFrequency': 10
+            'checkpointFrequency': 10,
+            'neumannBC':-0.1
         }
         
     if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
@@ -259,17 +261,19 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [16, 32, 72, 72],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
             'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4
+            'voxelDiffusivity': 0.0008/4,
+            'neumannBC':-0.1/8
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
         paraDict = {
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 6,
-            'stepRunNumProcs': [8],
-            'stepRunBreakPoints_V': [100000],
+            'stepRunNumProcs': [16, 32, 72, 72],
+            'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
             'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4
+            'voxelDiffusivity': 0.0008/4,
+            'neumannBC':-0.1/8
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
@@ -279,7 +283,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [16, 32, 72, 72],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
             'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4
+            'voxelDiffusivity': 0.0008/4,
+            'neumannBC':-0.1/8
         }
         
     if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
@@ -289,7 +294,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [16, 32, 72, 72],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000],
             'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4
+            'voxelDiffusivity': 0.0008/4,
+            'neumannBC':-0.1/8
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
@@ -299,7 +305,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [            16,    32,    96,    192,   288],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/16
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 6:
@@ -309,7 +316,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [16, 32, 96, 216, 216, 216],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/16
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
@@ -319,7 +327,19 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [16, 32, 72, 96, 144, 144],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000, 200000],
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/16
+        }
+    
+    if geoName == "bunny_128_sparse2.csv" and numNodes == 2:
+        paraDict = {
+            'voxelOrderFilename': geoName,
+            'refine_level_voxel': 7,
+            'stepRunNumProcs': [16, 32, 64, 128, 256],
+            'stepRunBreakPoints_V': [20000, 40000, 80000, 160000, 200000],
+            'outputSpan': 1000,
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/16
         }
     
     if geoName == "bunny_256_sparse2.csv" and numNodes == 4:
@@ -329,7 +349,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [            16,    32,    96,    144],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000 ],
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/32
         }
         
     if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
@@ -339,7 +360,8 @@ def geometryParaCombination(geoName, numNodes):
             'stepRunNumProcs': [            16,    32,    96,    144,   288],
             'stepRunBreakPoints_V': [10000, 20000, 40000, 80000, 160000],
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16
+            'voxelDiffusivity': 0.0008/16,
+            'neumannBC':-0.1/32
         }
         
     if geoName == "Moai_32.csv" and numNodes == 1:
@@ -378,7 +400,7 @@ if __name__ == "__main__":
     
     versionTemplate = "config_{0:03d}"
     # versionTemplate = "procs_{0:03d}"
-    isComputeSystem_local = True
+    computeSystem = 'anvil' # 'local', 'nova', 'anvil'
     
     # Check the length of the command line arguments
     if len(sys.argv) != 3:
@@ -389,7 +411,7 @@ if __name__ == "__main__":
         numNodes = int(sys.argv[2])
     
     # ************ Local ************
-    if isComputeSystem_local:
+    if computeSystem == 'local':
         baseDirPathObj  = pl.Path("/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/tests")
         exePath         = "/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-release/adm"
         runTemplate     = "local_run_{0:03d}"
@@ -398,10 +420,19 @@ if __name__ == "__main__":
     # *******************************
     
     # ************ NOVA ************
-    if not isComputeSystem_local:
+    if computeSystem =='nova':
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
+        # numNodes = 2
+        # numCPU = 8
+    # *******************************
+    
+    # ************ ANVIL ************
+    if computeSystem =='anvil':
+        baseDirPathObj  = pl.Path("/anvil/scratch/x-dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
+        exePath         = "/anvil/projects/x-cts110007/x-dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
+        runTemplate     = "anvil_run_{0:03d}"
         # numNodes = 2
         # numCPU = 8
     # *******************************
