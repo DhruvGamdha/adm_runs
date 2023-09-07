@@ -3,14 +3,10 @@ import os
 import cv2
 
 # path to directory containing frames
-baseDataDir = '/media/dhruv/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/simulationVideos'
+baseDataDir = '/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs'
 
+frame_dir = baseDataDir + '/tests/testing/cube/run11/frames/slice'
 framerate = 15
-baseDataDir = baseDataDir + '/Moai_128'#
-# baseDataDir = baseDataDir + '/bunny_64_sparse2'
-baseDataDir = baseDataDir + '/nova_run_022/' 
-
-frame_dir = baseDataDir + 'frames'
 videoName = "video_" + str(framerate) 
 videoFormat = ".avi"
 output_video = baseDataDir + '/' + videoName + videoFormat
