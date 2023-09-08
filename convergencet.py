@@ -389,15 +389,16 @@ def geometryParaCombination(geoName, numNodes):
 if __name__ == "__main__":
     
     versionTemplate = "config_{0:03d}"
-    computeSystem = 'local' # 'local', 'nova', 'anvil'
     
     # Check the length of the command line arguments
     if len(sys.argv) != 3:
         geomName = "bunny_32_sparse2.csv"
         numNodes = 1
+        computeSystem = 'local' # 'local', 'nova', 'anvil'
     else:
         geomName = sys.argv[1]
         numNodes = int(sys.argv[2])
+        computeSystem = sys.argv[3] # 'local', 'nova', 'anvil'
     
     # ************ Local ************
     if computeSystem == 'local':
