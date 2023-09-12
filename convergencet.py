@@ -21,18 +21,20 @@ import time
 from utils import createLatestDir
 
 def runExe(exePath, nProcs, isStartRun):
-    with open('output.txt', 'w') as f:
-        if isStartRun:
+    if isStartRun:
+        with open('output.txt', 'w') as f:
             command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
             f.write(' '.join(command))
             f.flush()
             subprocess.call(command, stdout=f)
-        else:
+            f.close()
+    else:
+        with open('output.txt', 'a') as f:
             command = ['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
             f.write(' '.join(command))
             f.flush()
             subprocess.call(command, stdout=f)
-        f.close()
+            f.close()
     return
 
 def getVersionDirs(runDirPathObj):
@@ -183,7 +185,7 @@ if __name__ == "__main__":
     # ************ NOVA ************
     if computeSystem =='nova':
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
-        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
+        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build2/adm"
         runTemplate     = "nova_run_{0:03d}"
     # *******************************
     
