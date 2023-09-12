@@ -14,84 +14,31 @@ import shutil
 import multiprocessing as mp
 from clean_visualization import voxelPrinting
 import sys
+from configPara import geometryParaCombination, createConfig
 
 # measure process time
 import time
 from utils import createLatestDir
 
-def startRun(exePath, cfg, nProcs=1):
-    with open('config.txt', 'w') as f:
-        libconf.dump(cfg, f)
-    
-    with open('output.txt', 'w') as f:                              # run the program and save the output to output.txt
-        f.write(' '.join(['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']))
-        f.flush()
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings'], stdout=f) 
-        # '-vec_view',':Vec1.m:ascii_matlab', '-mat_view',':filename.m:ascii_matlab'
-
-def resumeRun(exePath, nProcs):
-    
-    ## remove the CheckPoint folder
-    shutil.rmtree('CheckPoint')
-    
-    ## Rename the CheckPoint_1 folder to CheckPoint
-    os.rename('CheckPoint_1', 'CheckPoint')
-    
-    with open('output.txt', 'a') as f:                              # run the program and save the output to output.txt
-        # add exepat and nprocs to the output file
-        f.write(' '.join(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings','\n']))
-        f.flush()
-        subprocess.call(['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings'], stdout=f) 
+def runExe(exePath, nProcs, isStartRun):
+    with open('output.txt', 'w') as f:
+        if isStartRun:
+            command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+            f.write(' '.join(command))
+            f.flush()
+            subprocess.call(command, stdout=f)
+        else:
+            command = ['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+            f.write(' '.join(command))
+            f.flush()
+            subprocess.call(command, stdout=f)
+        f.close()
+    return
 
 def getVersionDirs(runDirPathObj):
     versionDirs = [d for d in runDirPathObj.iterdir() if d.is_dir()]    # get all the directories in the run directory
     versionDirs.sort(key=lambda d: int(d.name.split('_')[1]))           # sort the directories by version number
     return versionDirs
-
-def createConfig(paraDict):
-    
-    # Check if paraDict['checkpointFrequency'] exists and if not create it with a default value of 1
-    if 'checkpointFrequency' not in paraDict:
-        paraDict['checkpointFrequency'] = 1 
-        
-    cfgDict = {
-        "elemOrder": 1,
-        "AirDiffusivity": 0.1,
-        "mesh": {
-            "refine_lvl_base": 2,
-            "refine_lvl_channel_wall": 2,
-            "enable_subda": "false",
-            "min": [0.0, 0.0, 0.0],
-            "max": [1.0, 1.0, 1.0],
-            "refine_walls": "true"
-        },
-        "solver_options_ht": {
-            "ksp_max_it": 500,
-            "ksp_type": "bcgs",
-            "pc_type": "asm",
-            "ksp_atol": 1e-6,
-            "ksp_rtol": 1e-6,
-            "ksp_converged_reason": ""
-        },
-        
-        "dt": 0.01,
-        "totalT": 7.0,
-        "numTimestepPerVoxel": 4,
-        "neumannBC":paraDict['neumannBC'],
-        "plateTemperature": 1.0,
-        "voxelTemperature": 2.0,
-        "voxelOrderFilename": paraDict['voxelOrderFilename'],
-        "voxelInfo": {
-            "voxelDiffusivity": paraDict['voxelDiffusivity'],
-            "refine_level_voxel": paraDict['refine_level_voxel'],
-        },
-        "outputSpan": paraDict['outputSpan'],
-        "checkpointFrequency": paraDict['checkpointFrequency'],
-        "numberOfBackups": 2,
-        "baseBreakPoint" : paraDict['baseBreakPoint']
-    }
-    
-    return cfgDict
 
 def getRunProcs(baseProcs, maxProcs, lastProcs):
     if not all(x > 0 for x in [baseProcs, maxProcs]):
@@ -121,7 +68,7 @@ def getRunProcs(baseProcs, maxProcs, lastProcs):
         multiplier = 2 * multiplier
     return newProcs
 
-def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate):
+def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
     cfg = createConfig(paraDict)
     
@@ -135,15 +82,19 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
     # Create a timetaken.txt file to store the time taken for each version
     timeTakenFile = open("timetaken.txt", "w")
     timeTakenFile.write("Geometry file: " + printGeom + "\n")
+    timeTakenFile.flush()
     startOverall = time.time()
     
-    versionDirPathObj = createLatestDir(runDirPathObj, versionTemplate)
-    
     # Create data directory inside the version directory
-    dataDirPathObj = createLatestDir(versionDirPathObj, 'data')
+    dataDirPathObj = createLatestDir(runDirPathObj, 'data')
     os.chdir(dataDirPathObj)
     
     shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
+    
+    with open('config.txt', 'w') as f:
+        libconf.dump(cfg, f)
+        f.flush()
+        f.close()
     
     runProcs = 1
     lastProcs = 0
@@ -154,24 +105,31 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
         runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
         lastProcs = runProcs
         
-        startResume_time = time.time()
+        startRun_time = time.time()
         
-        if isStartRun:
-            startRun(exePath, cfg, runProcs)
-            isStartRun = False
-        else:
-            resumeRun(exePath, runProcs)
-
-        endResume_time = time.time()
+        runExe(exePath, runProcs, isStartRun)
         
+        endRun_time = time.time()
+        
+        if not isStartRun:
+            # Check that the CheckPoint and CheckPoint_1 folders exist
+            if not os.path.isdir('CheckPoint') or not os.path.isdir('CheckPoint_1'):
+                raise ValueError("CheckPoint and CheckPoint_1 folders must exist.")
+            
+            # shutil.rmtree('CheckPoint') ## remove the CheckPoint folder
+            # os.rename('CheckPoint_1', 'CheckPoint') ## Rename the CheckPoint_1 folder to CheckPoint
+        
+        isStartRun = False
+            
         # Open the breakpoint.txt file and read the last line
         # Creata amountComplete variable to store a string
         amountComplete = ""
         with open('breakpoint.txt', 'r') as f:
             amountComplete = f.readlines()[-1]
+            f.close()
         
         # write time taken for resumeRun along with j value to the timetaken.txt file
-        timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endResume_time - startResume_time) + " seconds, simulation progress = " + str(amountComplete) + " \n")
+        timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endRun_time - startRun_time) + " seconds, simulation progress = " + str(amountComplete) + " \n")
         timeTakenFile.flush()
         
         counter += 1
@@ -181,9 +139,9 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
             break
     
     # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
-    shutil.move(dataDirPathObj / 'config.txt', versionDirPathObj / 'config.txt')
-    shutil.move(dataDirPathObj / printGeom, versionDirPathObj / printGeom)
-    shutil.move(dataDirPathObj / 'output.txt', versionDirPathObj / 'output.txt')
+    shutil.move(dataDirPathObj / 'config.txt', runDirPathObj / 'config.txt')
+    shutil.move(dataDirPathObj / printGeom, runDirPathObj / printGeom)
+    shutil.move(dataDirPathObj / 'output.txt', runDirPathObj / 'output.txt')
     # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
 
     # if doFileCleanup:
@@ -200,198 +158,13 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemp
     timeTakenFile.close()
     return
 
-def geometryParaCombination(geoName, numNodes):
-    
-    if geoName == "bunny_32_sparse2.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 8,
-            'maxProcs': 8,
-            'baseBreakPoint' : 1000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1
-        }
-        
-    if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
-        }
-    
-    if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
-        }
-    
-    if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
-        }
-        
-    if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'voxelDiffusivity': 0.0008/4,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 288,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 6:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 216,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 144,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 256,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
-        }
-    
-    if geoName == "bunny_256_sparse2.csv" and numNodes == 4:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 8,
-            'baseProcs': 8,
-            'maxProcs': 144,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/128
-        }
-        
-    if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 8,
-            'baseProcs': 8,
-            'maxProcs': 288,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/128
-        }
-        
-    if geoName == "Moai_32.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 8,
-            'maxProcs': 8,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 2,
-            'voxelDiffusivity': 0.0008,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1
-        }
-    
-    if geoName == "Moai_64.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 10,
-            'voxelDiffusivity': 0.0008/4,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
-        }
-    
-    if geoName == "Moai_128.csv" and numNodes == 5:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 320,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
-        }
-        
-    return paraDict
               
 if __name__ == "__main__":
     
     versionTemplate = "config_{0:03d}"
     
     # Check the length of the command line arguments
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         geomName = "bunny_32_sparse2.csv"
         numNodes = 1
         computeSystem = 'local' # 'local', 'nova', 'anvil'
@@ -420,7 +193,11 @@ if __name__ == "__main__":
         exePath         = "/anvil/projects/x-cts110007/x-dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "anvil_run_{0:03d}"
     # *******************************
-    print("Number of processors:", mp.cpu_count())
+    
+    # Check is baseDirPathObj and exePath exist
+    if not os.path.isdir(baseDirPathObj) or not os.path.isfile(exePath):
+        raise ValueError("baseDirPathObj and exePath must exist.")
+        
     paraDict = geometryParaCombination(geomName, numNodes)
     
-    runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate, versionTemplate)
+    runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate)
