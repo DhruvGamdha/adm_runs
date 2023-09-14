@@ -194,7 +194,7 @@ if __name__ == "__main__":
     # ************ NOVA ************
     if computeSystem =='nova':
         baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
-        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build2/adm"
+        exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
     # *******************************
     
