@@ -21,20 +21,27 @@ import time
 from utils import createLatestDir
 
 def runExe(exePath, nProcs, isStartRun):
-    if isStartRun:
-        with open('output.txt', 'w') as f:
-            command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
-            f.write(' '.join(command))
+    try:
+        command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+
+        # Add resume flag for a non-start run
+        if not isStartRun:
+            command.insert(-3, '-resume_from_checkpoint')
+
+        with open('output.txt', 'a' if not isStartRun else 'w') as f:
+            f.write(' '.join(command) + '\n')
             f.flush()
-            subprocess.call(command, stdout=f)
-            f.close()
-    else:
-        with open('output.txt', 'a') as f:
-            command = ['mpirun', '-n', str(nProcs), exePath, '-resume_from_checkpoint', '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
-            f.write(' '.join(command))
-            f.flush()
-            subprocess.call(command, stdout=f)
-            f.close()
+
+            # Use subprocess.run to capture the exit code
+            completed_process = subprocess.run(command, stdout=f)
+
+            if completed_process.returncode != 0:
+                print(f"Error: The subprocess returned with exit code {completed_process.returncode}")
+                exit(completed_process.returncode)
+
+    except Exception as e:
+        print(f"An exception occurred: {e}")
+
     return
 
 def getVersionDirs(runDirPathObj):
@@ -105,7 +112,6 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
     while True:  
         runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
-        lastProcs = runProcs
         
         startRun_time = time.time()
         
@@ -122,13 +128,16 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
             # os.rename('CheckPoint_1', 'CheckPoint') ## Rename the CheckPoint_1 folder to CheckPoint
         
         isStartRun = False
-            
-        # Open the breakpoint.txt file and read the last line
-        # Creata amountComplete variable to store a string
+        
         amountComplete = ""
         with open('breakpoint.txt', 'r') as f:
-            amountComplete = f.readlines()[-1]
-            f.close()
+            lines = f.readlines()  # Read all lines once and store them in a variable
+            if len(lines) < 2:
+                print("Not enough lines in the file.")
+            else:
+                amountComplete = lines[-2].strip()
+                lastProcs = int(lines[-1].strip())
+
         
         # write time taken for resumeRun along with j value to the timetaken.txt file
         timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endRun_time - startRun_time) + " seconds, simulation progress = " + str(amountComplete) + " \n")
