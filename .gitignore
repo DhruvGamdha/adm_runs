@@ -8,3 +8,4 @@ test.mcr
 csvFiles/
 __pycache__/
 slurm_files/
+*.slurm
