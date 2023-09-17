@@ -25,8 +25,8 @@ class voxelPrinting:
             self.cleanDataDirPath.mkdir()
         
         self.readGeomFile()
-        # self.saveCSVFile()
-        self.createCleanFile()
+        self.saveCSVFile()
+        # self.createCleanFile()
         
     def ijk2ID(self, i, j, k, type='voxel'):
         """
@@ -80,13 +80,16 @@ class voxelPrinting:
         csvFilePath = self.verDirPath / csvFileName
         csvFile = open(csvFilePath, 'w')
         
+        # Write the size of the printing_order to the csv file
+        csvFile.write(str(len(self.printing_order)) + '\n')
+        
         # Write the number of voxels in x, y, z directions to the csv file
-        csvFile.write(str(self.numVoxels_xyz[0]) + ',' + str(self.numVoxels_xyz[1]) + ',' + str(self.numVoxels_xyz[2]) + '\n')
+        # csvFile.write(str(self.numVoxels_xyz[0]) + ' ' + str(self.numVoxels_xyz[1]) + ' ' + str(self.numVoxels_xyz[2]) + '\n')
         
         for ID in self.printing_order:
             i, j, k = self.ID2ijk(ID)
             # write i, j, k to csv file line by line: example: 0,0,0
-            csvFile.write(str(i) + ',' + str(j) + ',' + str(k) + '\n')
+            csvFile.write(str(i) + ' ' + str(j) + ' ' + str(k) + '\n')
              
         csvFile.close()
         
@@ -305,12 +308,12 @@ class voxelPrinting:
         
 if __name__=="__main__":
     # set up parameters
-    runDirID = 19
+    runDirID = 6
     verDirID = 1
-    geomName = 'LowResCube.ctr'
+    geomName = 'Moai_128.ctr'
     # geomName = 'bunny_64.ctr'
     # set up file paths
-    runDirTemplate  = "run_{:03d}"
+    runDirTemplate  = "local_run_{:03d}"
     versDirTemplate = "config_{:03d}"
     
     cwd = pl.Path.cwd()
