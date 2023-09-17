@@ -39,6 +39,7 @@ def createConfig(paraDict):
         "outputSpan": paraDict['outputSpan'],
         "checkpointFrequency": paraDict['checkpointFrequency'],
         "numberOfBackups": 2,
+        "voxelIncrementNumber": paraDict['voxelIncrementNumber'],
         "baseBreakPoint" : paraDict['baseBreakPoint']
     }
     
@@ -56,7 +57,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1
+            'neumannBC':-0.1,
+            'voxelIncrementNumber': 2
         }
         
     if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
@@ -69,7 +71,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
+            'neumannBC':-0.1/8,
+            'voxelIncrementNumber': 16
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
@@ -82,7 +85,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
+            'neumannBC':-0.1/8,
+            'voxelIncrementNumber': 16
         }
     
     if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
@@ -95,7 +99,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
+            'neumannBC':-0.1/8,
+            'voxelIncrementNumber': 16
         }
         
     if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
@@ -108,7 +113,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 100,
             'voxelDiffusivity': 0.0008/4,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
+            'neumannBC':-0.1/8,
+            'voxelIncrementNumber': 16
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
@@ -121,7 +127,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
+            'neumannBC':-0.1/64,
+            'voxelIncrementNumber': 130
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 6:
@@ -134,7 +141,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
+            'neumannBC':-0.1/64,
+            'voxelIncrementNumber': 130
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
@@ -147,7 +155,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
+            'neumannBC':-0.1/64,
+            'voxelIncrementNumber': 130
         }
     
     if geoName == "bunny_128_sparse2.csv" and numNodes == 2:
@@ -160,7 +169,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
+            'neumannBC':-0.1/64,
+            'voxelIncrementNumber': 130
         }
     
     if geoName == "bunny_256_sparse2.csv" and numNodes == 4:
@@ -173,7 +183,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/128
+            'neumannBC':-0.1/128,
+            'voxelIncrementNumber': 1000
         }
         
     if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
@@ -186,7 +197,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/128
+            'neumannBC':-0.1/128,
+            'voxelIncrementNumber': 1000
         }
         
     if geoName == "Moai_32.csv" and numNodes == 1:
@@ -199,7 +211,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 2,
             'voxelDiffusivity': 0.0008,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1
+            'neumannBC':-0.1,
+            'voxelIncrementNumber': 2
         }
     
     if geoName == "Moai_64.csv" and numNodes == 2:
@@ -212,7 +225,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 10,
             'voxelDiffusivity': 0.0008/4,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/8
+            'neumannBC':-0.1/8,
+            'voxelIncrementNumber': 16
         }
     
     if geoName == "Moai_128.csv" and numNodes == 5:
@@ -225,7 +239,8 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 1000,
             'voxelDiffusivity': 0.0008/16,
             'checkpointFrequency': 10,
-            'neumannBC':-0.1/64
+            'neumannBC':-0.1/64,
+            'voxelIncrementNumber': 130
         }
         
     return paraDict
