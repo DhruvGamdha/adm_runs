@@ -40,7 +40,10 @@ def createConfig(paraDict):
         "checkpointFrequency": paraDict['checkpointFrequency'],
         "numberOfBackups": 2,
         "voxelIncrementNumber": paraDict['voxelIncrementNumber'],
-        "baseBreakPoint" : paraDict['baseBreakPoint']
+        "baseBreakPoint" : paraDict['baseBreakPoint'],
+        "ifPrintStat": False,
+        "ifPrintInfo": False
+        
     }
     
     return cfgDict
