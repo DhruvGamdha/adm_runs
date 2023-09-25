@@ -9,3 +9,4 @@ csvFiles/
 __pycache__/
 slurm_files/
 *.slurm
+geometries/
