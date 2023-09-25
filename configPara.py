@@ -42,7 +42,8 @@ def createConfig(paraDict):
         "voxelIncrementNumber": paraDict['voxelIncrementNumber'],
         "baseBreakPoint" : paraDict['baseBreakPoint'],
         "ifPrintStat": False,
-        "ifPrintInfo": False
+        "ifPrintInfo": True,
+        "ifPrintWarn": False
         
     }
     
@@ -185,19 +186,19 @@ def geometryParaCombination(geoName, numNodes):
             'dt': 0.01*130
         }
     
-    if geoName == "bunny_256_sparse2.csv" and numNodes == 4:
+    if geoName == "bunny_256_sparse2.csv" and numNodes == 2:
         paraDict = {
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 8,
             'baseProcs': 8,
-            'maxProcs': 144,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
-            'checkpointFrequency': 10,
+            'maxProcs': 512,
+            'baseBreakPoint' : 8000,
+            'outputSpan': 20,
+            'voxelDiffusivity': 0.0008/32,
+            'checkpointFrequency': 20,
             'neumannBC':-0.1/128,
-            'voxelIncrementNumber': 1000,
-            'dt': 0.01*1000
+            'voxelIncrementNumber': 500,
+            'dt': 0.01*500
         }
         
     if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
@@ -208,7 +209,7 @@ def geometryParaCombination(geoName, numNodes):
             'maxProcs': 288,
             'baseBreakPoint' : 10000,
             'outputSpan': 1000,
-            'voxelDiffusivity': 0.0008/16,
+            'voxelDiffusivity': 0.0008/32,
             'checkpointFrequency': 10,
             'neumannBC':-0.1/128,
             'voxelIncrementNumber': 1000,
