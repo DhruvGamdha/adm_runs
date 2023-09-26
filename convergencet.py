@@ -81,7 +81,18 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
     cfg = createConfig(paraDict)
     
-    runDirPathObj = createLatestDir(baseDirPathObj, runTemplate)
+    testsDir_po = baseDirPathObj / 'tests'
+    geoDir_po = baseDirPathObj / 'geometries'
+    
+    # Check if geoDir_po exists else raise an error
+    if not os.path.isdir(geoDir_po):
+        raise ValueError("geoDir_po must exist.")
+    
+    # Check if testsDir_po exists else create it
+    if not os.path.isdir(testsDir_po):
+        testsDir_po.mkdir(parents=True, exist_ok=True)
+    
+    runDirPathObj = createLatestDir(testsDir_po, runTemplate)
     os.chdir(runDirPathObj) # change to the run directory
     
     print("cwd: ",os.getcwd())  # print the current working directory
@@ -98,7 +109,7 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     dataDirPathObj = createLatestDir(runDirPathObj, 'data')
     os.chdir(dataDirPathObj)
     
-    shutil.copyfile(baseDirPathObj / printGeom, dataDirPathObj / printGeom)
+    shutil.copyfile(geoDir_po / printGeom, dataDirPathObj / printGeom)
     
     with open('config.txt', 'w') as f:
         libconf.dump(cfg, f)
@@ -140,7 +151,8 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
 
         
         # write time taken for resumeRun along with j value to the timetaken.txt file
-        timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endRun_time - startRun_time) + " seconds, simulation progress = " + str(amountComplete) + " \n")
+        timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endRun_time - startRun_time) + \
+            " seconds, simulation progress = " + str(amountComplete) + " \n")
         timeTakenFile.flush()
         
         counter += 1
@@ -186,21 +198,21 @@ if __name__ == "__main__":
     
     # ************ Local ************
     if computeSystem == 'local':
-        baseDirPathObj  = pl.Path("/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/tests")
+        baseDirPathObj  = pl.Path("/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/")
         exePath         = "/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-release/adm"
         runTemplate     = "local_run_{0:03d}"
     # *******************************
     
     # ************ NOVA ************
     if computeSystem =='nova':
-        baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
+        baseDirPathObj  = pl.Path("/work/mech-ai/dgamdha/projects/leap_hi/software/runs/adm_runs/")
         exePath         = "/work/mech-ai/dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "nova_run_{0:03d}"
     # *******************************
     
     # ************ ANVIL ************
     if computeSystem =='anvil':
-        baseDirPathObj  = pl.Path("/anvil/scratch/x-dgamdha/projects/leap_hi/software/runs/adm_runs/tests")
+        baseDirPathObj  = pl.Path("/anvil/scratch/x-dgamdha/projects/leap_hi/software/runs/adm_runs/")
         exePath         = "/anvil/projects/x-cts110007/x-dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
         runTemplate     = "anvil_run_{0:03d}"
     # *******************************
