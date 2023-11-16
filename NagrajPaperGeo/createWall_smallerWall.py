@@ -18,12 +18,14 @@ from mpl_toolkits.mplot3d import Axes3D
 class VoxelizedWall:
     def __init__(self):
         # Dimensions of the larger wall
-        self.large_wall_dim = np.array([60, 1.25, 50])  # x, y, z in mm
+        wallWidth = 1.20  # y-axis
+        # self.large_wall_dim = np.array([60, wallWidth, 50])  # x, y, z in mm
+        self.large_wall_dim = np.array([8.0, wallWidth, 3.2])  # x, y, z in mm
 
         # User input for smaller wall dimensions
         self.small_wall_dim = np.array([
             float(input("Enter the length of the smaller wall along the x-axis in mm: ")),
-            1.25,  # Width is the same
+            wallWidth,  # Width is the same
             float(input("Enter the height of the smaller wall along the z-axis in mm: "))
         ])
 
@@ -38,13 +40,19 @@ class VoxelizedWall:
         self.voxels_in_small_wall = np.ceil(self.small_wall_dim / self.voxel_dim).astype(int)
         
         # Print the number of voxels in a small wall
-        print(f"\nNumber of voxels in a small wall: {self.voxels_in_small_wall[0]} * {self.voxels_in_small_wall[1]} * {self.voxels_in_small_wall[2]}")
+        print(f"\nNumber of voxels in a small wall: {self.voxels_in_small_wall[0]} * {self.voxels_in_small_wall[1]} * {self.voxels_in_small_wall[2]} = {np.product(self.voxels_in_small_wall)}")
 
         # Calculate number of small walls in the large wall
         self.small_walls_in_large_wall = np.ceil(self.large_wall_dim / self.small_wall_dim).astype(int)
         
         # Print the number of small walls in the large wall
-        print(f"Number of small walls in the large wall: {self.small_walls_in_large_wall[0]} * {self.small_walls_in_large_wall[1]} * {self.small_walls_in_large_wall[2]}")
+        print(f"Number of small walls in the large wall: {self.small_walls_in_large_wall[0]} * {self.small_walls_in_large_wall[1]} * {self.small_walls_in_large_wall[2]} = {np.product(self.small_walls_in_large_wall)}")
+        
+        # Voxels (x,y,z) in the large wall
+        self.voxels_in_large_wall = self.small_walls_in_large_wall * self.voxels_in_small_wall
+        
+        # Print the number of voxels in the large wall
+        print(f"Number of voxels in the large wall: {self.voxels_in_large_wall[0]} * {self.voxels_in_large_wall[1]} * {self.voxels_in_large_wall[2]} = {np.product(self.voxels_in_large_wall)}")
         
         # Calculate the total number of operations for progress tracking
         num_small_walls = np.product(self.small_walls_in_large_wall)
