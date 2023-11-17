@@ -19,8 +19,8 @@ class VoxelizedWall:
     def __init__(self):
         # Dimensions of the larger wall
         wallWidth = 1.20  # y-axis
-        # self.large_wall_dim = np.array([60, wallWidth, 50])  # x, y, z in mm
-        self.large_wall_dim = np.array([8.0, wallWidth, 3.2])  # x, y, z in mm
+        self.large_wall_dim = np.array([60, wallWidth, 50])  # x, y, z in mm
+        # self.large_wall_dim = np.array([8.0, wallWidth, 3.2])  # x, y, z in mm
 
         # User input for smaller wall dimensions
         self.small_wall_dim = np.array([

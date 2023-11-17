@@ -10,3 +10,4 @@ __pycache__/
 slurm_files/
 *.slurm
 geometries/
+*.csv
