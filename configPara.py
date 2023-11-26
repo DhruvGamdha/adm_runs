@@ -70,20 +70,6 @@ def geometryParaCombination(geoName, numNodes):
             'numTimestepPerVoxel': 4
         }
     
-    if geoName == "bunny_32_sparse2.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 8,
-            'maxProcs': 8,
-            'baseBreakPoint' : 100000,
-            'outputSpan': 100,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 2,
-            'dt': 0.01*2,
-            'numTimestepPerVoxel': 4
-        }
-    
     if geoName == "bunny_32_zeroSparsity.csv" and numNodes == 1:
         paraDict = {
             'voxelOrderFilename': geoName,
@@ -98,62 +84,6 @@ def geometryParaCombination(geoName, numNodes):
             'numTimestepPerVoxel':10
         }
         
-    if geoName == "bunny_64_sparse0.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_64_sparse2.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 128,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 20,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-        
-    if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 100,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-    
     if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 1:
         paraDict = {
             'voxelOrderFilename': geoName,
@@ -182,62 +112,6 @@ def geometryParaCombination(geoName, numNodes):
             'numTimestepPerVoxel': 4
         }
     
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 8:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 288,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 6:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 216,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 4:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 144,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_128_sparse2.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 256,
-            'baseBreakPoint' : 8000,
-            'outputSpan': 100,
-            'checkpointFrequency': 100,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
-        
     if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 1:
         paraDict = {
             'voxelOrderFilename': geoName,
@@ -252,34 +126,6 @@ def geometryParaCombination(geoName, numNodes):
             'numTimestepPerVoxel':80
         }
     
-    if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 3:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 384,
-            'baseBreakPoint' : 4000,
-            'outputSpan': 25,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.00113*130,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_256_sparse2.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 8,
-            'baseProcs': 8,
-            'maxProcs': 512,
-            'baseBreakPoint' : 8000,
-            'outputSpan': 20,
-            'checkpointFrequency': 20,
-            'voxelIncrementNumber': 500,
-            'dt': 0.01*500,
-            'numTimestepPerVoxel': 4
-        }
-        
     if geoName == "bunny_256_zeroSparsity.csv" and numNodes == 4:
         paraDict = {
             'voxelOrderFilename': geoName,
@@ -295,62 +141,6 @@ def geometryParaCombination(geoName, numNodes):
             
         }
         
-    if geoName == "bunny_256_sparse2.csv" and numNodes == 8:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 8,
-            'baseProcs': 8,
-            'maxProcs': 288,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 1000,
-            'dt': 0.01*1000,
-            'numTimestepPerVoxel': 4
-        }
-        
-    if geoName == "Moai_32.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 8,
-            'maxProcs': 8,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 2,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 2,
-            'dt': 0.01*2,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "Moai_64.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 72,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 10,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "Moai_128.csv" and numNodes == 5:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 320,
-            'baseBreakPoint' : 10000,
-            'outputSpan': 1000,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
-    
     if geoName == "Moai_128_zeroSparsity.csv" and numNodes == 3:
         paraDict = {
             'voxelOrderFilename': geoName,
