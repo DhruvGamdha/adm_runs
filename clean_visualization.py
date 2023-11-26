@@ -11,18 +11,18 @@ class voxelPrinting:
         self.numVoxels      = 0
         self.numNodes       = 0
         self.geomFilePath   = geomFilePath
-        self.dataDirName    = 'data'
-        self.cleanPrefix    = 'clean'
-        self.dataFileType   = '.dat'
-        self.verDirPath     = verDirPath
+        # self.dataDirName    = 'data'
+        # self.cleanPrefix    = 'clean'
+        # self.dataFileType   = '.dat'
+        # self.verDirPath     = verDirPath
         # self.dataFileID     = datFileID
         
-        self.dataDirPath      = self.verDirPath / self.dataDirName
-        self.cleanDataDirPath = self.verDirPath / str(self.cleanPrefix + '_' + self.dataDirName)
+        # self.dataDirPath      = self.verDirPath / self.dataDirName
+        # self.cleanDataDirPath = self.verDirPath / str(self.cleanPrefix + '_' + self.dataDirName)
         
         # make clean data directory
-        if not self.cleanDataDirPath.exists():
-            self.cleanDataDirPath.mkdir()
+        # if not self.cleanDataDirPath.exists():
+        #     self.cleanDataDirPath.mkdir()
         
         self.readGeomFile()
         self.saveCSVFile()
@@ -77,7 +77,10 @@ class voxelPrinting:
         csvFileName = self.geomFilePath.stem + '.csv'
         print('csv file name    :',csvFileName)
         
-        csvFilePath = self.verDirPath / csvFileName
+        # Get geoFile directory path
+        geoDir = self.geomFilePath.parent
+        
+        csvFilePath = geoDir / csvFileName
         csvFile = open(csvFilePath, 'w')
         
         # Write the size of the printing_order to the csv file
@@ -229,6 +232,11 @@ class voxelPrinting:
             
             # Read the next line of the file
             line = geomFile.readline()
+            
+            # If the line is empty, break the loop
+            if not line:
+                break
+            
             words = line.split()
             
             identifier = words[0]
@@ -308,19 +316,21 @@ class voxelPrinting:
         
 if __name__=="__main__":
     # set up parameters
-    runDirID = 6
-    verDirID = 1
-    geomName = 'Moai_128.ctr'
+    # runDirID = 6
+    # verDirID = 1
+    geomName = 'singleFilamentWall_256.ctr'
     # geomName = 'bunny_64.ctr'
     # set up file paths
-    runDirTemplate  = "local_run_{:03d}"
-    versDirTemplate = "config_{:03d}"
+    # runDirTemplate  = "local_run_{:03d}"
+    # versDirTemplate = "config_{:03d}"
     
     cwd = pl.Path.cwd()
-    runDirPath       = cwd / 'tests' / runDirTemplate.format(runDirID)
-    verDirPath       = runDirPath / versDirTemplate.format(verDirID)
-    dataDirPath      = verDirPath / 'data'
-    cleanDataDirPath = verDirPath / 'clean_data'
+    # runDirPath       = cwd / 'tests' / runDirTemplate.format(runDirID)
+    # verDirPath       = runDirPath / versDirTemplate.format(verDirID)
+    # dataDirPath      = verDirPath / 'data'
+    # cleanDataDirPath = verDirPath / 'clean_data'
     
-    geomFilePath = verDirPath / geomName
+    geoDirPath = cwd / 'geometries'
+    geomFilePath = geoDirPath / geomName
+    verDirPath = 'temp'
     geom = voxelPrinting(geomFilePath, verDirPath)
