@@ -28,7 +28,7 @@ def runExe(exePath, nProcs, isStartRun):
         if not isStartRun:
             command.insert(-3, '-resume_from_checkpoint')
 
-        with open('output.txt', 'a' if not isStartRun else 'w') as f:
+        with open('output.log', 'a' if not isStartRun else 'w') as f:
             f.write(' '.join(command) + '\n')
             f.flush()
 
@@ -161,10 +161,10 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
         if os.path.isfile("eos.txt"):
             break
     
-    # move "config.txt", printGeom, "output.txt", "repro.cfg" to the version directory
+    # move "config.txt", printGeom, "output.log", "repro.cfg" to the version directory
     shutil.move(dataDirPathObj / 'config.txt', runDirPathObj / 'config.txt')
     shutil.move(dataDirPathObj / printGeom, runDirPathObj / printGeom)
-    shutil.move(dataDirPathObj / 'output.txt', runDirPathObj / 'output.txt')
+    shutil.move(dataDirPathObj / 'output.log', runDirPathObj / 'output.log')
     # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
 
     # if doFileCleanup:
@@ -213,7 +213,7 @@ if __name__ == "__main__":
     # ************ ANVIL ************
     if computeSystem =='anvil':
         baseDirPathObj  = pl.Path("/anvil/scratch/x-dgamdha/projects/leap_hi/software/runs/adm_runs/")
-        exePath         = "/anvil/projects/x-cts110007/x-dgamdha/projects/leap_hi/software/admanufacturing/build/adm"
+        exePath         = "/anvil/projects/x-cts110007/x-dgamdha/projects/leap_hi/software/admanufacturing/build_advance/adm"
         runTemplate     = "anvil_run_{0:03d}"
     # *******************************
     
