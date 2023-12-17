@@ -1,186 +1,33 @@
 #!/usr/bin/env python
 
-import subprocess
-import re
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-import libconf
 import pathlib as pl
 import os
-import glob
-from PyPDF2 import PdfMerger
-import shutil
-import multiprocessing as mp
-from clean_visualization import voxelPrinting
 import sys
 from configPara import geometryParaCombination, createConfig
 
 # measure process time
-import time
-from utils import createLatestDir
+from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData
 
-def runExe(exePath, nProcs, isStartRun):
-    try:
-        command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
-
-        # Add resume flag for a non-start run
-        if not isStartRun:
-            command.insert(-3, '-resume_from_checkpoint')
-
-        with open('output.log', 'a' if not isStartRun else 'w') as f:
-            f.write(' '.join(command) + '\n')
-            f.flush()
-
-            # Use subprocess.run to capture the exit code
-            completed_process = subprocess.run(command, stdout=f)
-
-            if completed_process.returncode != 0:
-                print(f"Error: The subprocess returned with exit code {completed_process.returncode}")
-                exit(completed_process.returncode)
-
-    except Exception as e:
-        print(f"An exception occurred: {e}")
-
-    return
-
-def getVersionDirs(runDirPathObj):
-    versionDirs = [d for d in runDirPathObj.iterdir() if d.is_dir()]    # get all the directories in the run directory
-    versionDirs.sort(key=lambda d: int(d.name.split('_')[1]))           # sort the directories by version number
-    return versionDirs
-
-def getRunProcs(baseProcs, maxProcs, lastProcs):
-    if not all(x > 0 for x in [baseProcs, maxProcs]):
-        raise ValueError("baseProcs, maxProcs arguments must be greater than zero.")
-    
-    if not (lastProcs >= 0):
-        raise ValueError("lastProcs must be greater than or equal to zero.")
-    
-    # Check that maxProcs is greater than or equal to baseProcs and lastProcs
-    if maxProcs < baseProcs or maxProcs < lastProcs:
-        raise ValueError("maxProcs must be greater than or equal to baseProcs and lastProcs.")
-    
-    multiplier = 1
-    newProcs = 0
-    
-    while True:
-        newProcs = baseProcs*multiplier
-        
-        # Check that newProcs don't exceed maxProcs
-        if newProcs >= maxProcs:
-            newProcs = maxProcs
-            break
-        
-        # Check if newProcs exceed lastProcs, 
-        if newProcs > lastProcs:
-            break
-        multiplier = 2 * multiplier
-    return newProcs
 
 def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
     cfg = createConfig(paraDict)
     
-    testsDir_po = baseDirPathObj / 'tests'
-    geoDir_po = baseDirPathObj / 'geometries'
-    
-    # Check if geoDir_po exists else raise an error
-    if not os.path.isdir(geoDir_po):
-        raise ValueError("geoDir_po must exist.")
-    
-    # Check if testsDir_po exists else create it
-    if not os.path.isdir(testsDir_po):
-        testsDir_po.mkdir(parents=True, exist_ok=True)
+    testsDir_po, geoDir_po = prepareDirectories(baseDirPathObj)
     
     runDirPathObj = createLatestDir(testsDir_po, runTemplate)
-    os.chdir(runDirPathObj) # change to the run directory
     
-    print("cwd: ",os.getcwd())  # print the current working directory
+    changeDirectory(runDirPathObj) 
     
     printGeom = paraDict['voxelOrderFilename']
     
-    # Create a timetaken.txt file to store the time taken for each version
-    timeTakenFile = open("timetaken.txt", "w")
-    timeTakenFile.write("Geometry file: " + printGeom + "\n")
-    timeTakenFile.flush()
-    startOverall = time.time()
+    startOverall, timeTakenFile, dataDirPathObj = setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg)
     
-    # Create data directory inside the version directory
-    dataDirPathObj = createLatestDir(runDirPathObj, 'data')
-    os.chdir(dataDirPathObj)
+    runSimulation(exePath, paraDict, timeTakenFile, dataDirPathObj)
     
-    shutil.copyfile(geoDir_po / printGeom, dataDirPathObj / printGeom)
+    cleanupAndArchiveData(runDirPathObj, printGeom, startOverall, timeTakenFile, dataDirPathObj)
     
-    with open('config.txt', 'w') as f:
-        libconf.dump(cfg, f)
-        f.flush()
-        f.close()
-    
-    runProcs = 1
-    lastProcs = 0
-    isStartRun = True
-    counter = 0
-    
-    while True:  
-        runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
-        
-        startRun_time = time.time()
-        
-        runExe(exePath, runProcs, isStartRun)
-        
-        endRun_time = time.time()
-        
-        if not isStartRun:
-            # Check that the CheckPoint and CheckPoint_1 folders exist
-            if not os.path.isdir('CheckPoint') or not os.path.isdir('CheckPoint_1'):
-                raise ValueError("CheckPoint and CheckPoint_1 folders must exist.")
-            
-            # shutil.rmtree('CheckPoint') ## remove the CheckPoint folder
-            # os.rename('CheckPoint_1', 'CheckPoint') ## Rename the CheckPoint_1 folder to CheckPoint
-        
-        isStartRun = False
-        
-        amountComplete = ""
-        with open('breakpoint.txt', 'r') as f:
-            lines = f.readlines()  # Read all lines once and store them in a variable
-            if len(lines) < 2:
-                print("Not enough lines in the file.")
-            else:
-                amountComplete = lines[-2].strip()
-                lastProcs = int(lines[-1].strip())
-
-        
-        # write time taken for resumeRun along with j value to the timetaken.txt file
-        timeTakenFile.write("Run "+ str(counter) +" with Procs = " + str(runProcs) + " took " + str(endRun_time - startRun_time) + \
-            " seconds, simulation progress = " + str(amountComplete) + " \n")
-        timeTakenFile.flush()
-        
-        counter += 1
-        
-        # Check if "eos.txt" file exist in the directory, if so then break the loop
-        if os.path.isfile("eos.txt"):
-            break
-    
-    # move "config.txt", printGeom, "output.log", "repro.cfg" to the version directory
-    shutil.move(dataDirPathObj / 'config.txt', runDirPathObj / 'config.txt')
-    shutil.move(dataDirPathObj / printGeom, runDirPathObj / printGeom)
-    shutil.move(dataDirPathObj / 'output.log', runDirPathObj / 'output.log')
-    # shutil.move(dataDirPathObj / 'repro.cfg', versionDirPathObj / 'repro.cfg')
-
-    # if doFileCleanup:
-    #     geomFilePath = versionDirPathObj / printGeom
-    #     geom = voxelPrinting(geomFilePath, versionDirPathObj)
-    
-    os.chdir(runDirPathObj)
-    
-    endOverall = time.time()
-    timeTakenOverall = endOverall - startOverall
-    timeTakenFile.write("Overall time {0:.2f} seconds \n".format(timeTakenOverall))
-    timeTakenFile.flush()
-        
-    timeTakenFile.close()
     return
-
               
 if __name__ == "__main__":
     
