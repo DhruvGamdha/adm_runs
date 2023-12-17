@@ -5,11 +5,14 @@ def createConfig(paraDict):
     if 'checkpointFrequency' not in paraDict:
         paraDict['checkpointFrequency'] = 1 
         
+    if 'refine_lvl_base' not in paraDict:
+        paraDict['refine_lvl_base'] = 4
+        
     cfgDict = {
         "elemOrder": 1,
         "AirDiffusivity": 0.0000197,
         "mesh": {
-            "refine_lvl_base": 4,
+            "refine_lvl_base": paraDict['refine_lvl_base'],
             "refine_lvl_channel_wall": 2,
             "enable_subda": "false",
             "min": [0.0, 0.0, 0.0],
@@ -122,22 +125,23 @@ def geometryParaCombination(geoName, numNodes):
             'outputSpan': 25,
             'checkpointFrequency': 10,
             'voxelIncrementNumber': 130,
-            'dt': 0.0000565*130,
-            'numTimestepPerVoxel':80
+            'dt': 0.0362*130/10,
+            'numTimestepPerVoxel':10
         }
     
     if geoName == "bunny_256_zeroSparsity.csv" and numNodes == 4:
         paraDict = {
             'voxelOrderFilename': geoName,
             'refine_level_voxel': 8,
+            'refine_lvl_base': 5,
             'baseProcs': 128,
             'maxProcs': 512,
             'baseBreakPoint' : 500000,
             'outputSpan': 10,
             'checkpointFrequency': 10,
             'voxelIncrementNumber': 1100,
-            'dt': 0.00452*1100/10000,
-            'numTimestepPerVoxel':10000
+            'dt': 0.00453*1100/10,
+            'numTimestepPerVoxel':10
             
         }
         
