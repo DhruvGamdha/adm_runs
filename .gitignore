@@ -10,4 +10,4 @@ __pycache__/
 slurm_files/
 *.slurm
 geometries/
-*.csv
+NagrajPaper/geo/old/*.csv
