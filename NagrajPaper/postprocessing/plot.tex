@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+\begin{document}
+
+\begin{tikzpicture}
+    \begin{axis}[
+        xlabel={Time (s)},
+        ylabel={Temperature (K)},
+        xmin=0, xmax=65,
+        ymin=350, ymax=550, % Kelvin
+        % ymin=75, ymax = 275, % Celsius
+        legend entries={Simulated new, Experimental},
+        % legend entries={Simulated new, Simulated  old, Experimental},
+        legend pos=north east,
+        grid=major,
+        grid style={dashed,gray!30},
+        width=15cm,
+        height=10cm,
+        ]
+        \addplot[color = blue, mark = +             , mark size=0.75pt] table [x index={3}, y index={7}, col sep=comma] {configured_probeTemp_imple2.csv};
+        \addplot[color =  orange, mark = triangle   , mark size=0.75pt] table [x index={0}, y index={2}, col sep=comma] {expP1.csv}; % Kelvin
+        % \addplot[color = red, mark = square] table [x index={3}, y index={7}, col sep=comma] {configured_allData_old.csv};
+        % \addplot[color =  orange, mark = triangle] table [x index={0}, y index={1}, col sep=comma] {expP1.csv}; % Celsius
+    \end{axis}
+\end{tikzpicture}
+
+\end{document}

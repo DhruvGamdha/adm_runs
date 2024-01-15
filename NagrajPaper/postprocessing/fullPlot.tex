@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+\begin{document}
+
+\begin{tikzpicture}
+    \begin{axis}[
+        xlabel={Time (s)},
+        ylabel={Temperature (K)},
+        xmin=0, xmax=70,
+        ymin=350, ymax=550, % Kelvin
+        % ymin=75, ymax = 275, % Celsius
+        legend entries={Sim our, Exp, Sim paper, Sim Nagaraj Linear, Sim Nagaraj Quad},
+        % legend entries={Simulated new, Simulated  old, Experimental},
+        legend pos=north east,
+        grid=major,
+        grid style={dashed,gray!30},
+        width=15cm,
+        height=10cm,
+        ]
+        \addplot[color = blue, mark = +             , mark size=0.75pt] table [x index={3}, y index={7}, col sep=comma] {configured_probeTemp_imple2.csv};
+        \addplot[color =  orange, mark = triangle   , mark size=0.75pt] table [x index={0}, y index={2}, col sep=comma] {paperData_full.csv}; % Kelvin
+        \addplot[color = green, mark = diamond*     , mark size=0.75pt] table [x index={4}, y index={6}, col sep=comma] {paperData_full.csv}; % Kelvin
+        % \addplot[color = red, mark = pentagon*, mark size=1pt] table [x index={8}, y index={10}, col sep=comma] {paperData_full.csv}; % Kelvin
+        % \addplot[color = purple, mark = +, mark size=1pt] table [x index={12}, y index={14}, col sep=comma] {paperData_full.csv}; % Kelvin
+    \end{axis}
+\end{tikzpicture}
+
+\end{document}
