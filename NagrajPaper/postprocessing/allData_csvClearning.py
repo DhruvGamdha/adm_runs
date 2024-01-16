@@ -42,7 +42,7 @@ def clean_and_save_csv(probe_file, exp_file, time_step, output_file):
 
 if __name__ == "__main__":
     
-    dt = 0.007714
+    dt = 0.7416
     if len(sys.argv) > 1:
         dt = float(sys.argv[1])
     else:
