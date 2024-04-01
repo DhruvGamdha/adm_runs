@@ -1,4 +1,5 @@
 # bash script to run post processing on the output of the simulation to create plots
+# exe run command: mpirun -n 8 <path_to_exe_dir>/adm 2>&1 | tee output.log
 
 # Check if no arguments were passed
 if [ $# -eq 0 ]; then
