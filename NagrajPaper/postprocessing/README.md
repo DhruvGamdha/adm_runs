@@ -1,3 +1,6 @@
+
+exe run command: ```mpirun -n 8 <path_to_exe_dir>/adm 2>&1 | tee output.log```
+
 Steps after the simulation:
 1. Run generate_pvd.py file
    1. ```python generate_pvd.py```
