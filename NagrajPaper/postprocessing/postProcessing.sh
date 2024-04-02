@@ -2,9 +2,9 @@
 # exe run command: mpirun -n 8 <path_to_exe_dir>/adm 2>&1 | tee output.log
 
 # Check if no arguments were passed
-if [ $# -eq 0 ]; then
+if [ $# -ne 2 ]; then
     echo "Error: No time step and material (abs or pekk) arguments supplied."
-    echo "Usage: $0 <argument1> [argument2] ..."
+    echo "Usage: $0 <time step> <material (abs or pekk)>"
     exit 1
 fi
 
