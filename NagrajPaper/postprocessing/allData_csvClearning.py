@@ -11,7 +11,7 @@ import pandas as pd
 import os
 import sys
 
-def clean_and_save_csv(probe_file, exp_file, time_step, output_file):
+def clean_and_save_csv(probe_file, exp_file, time_step, output_file, timeOffset):
     # 1. Reading the allData.csv file from the current directory
     startpath = os.path.dirname(os.path.realpath(__file__))
     df_probe = pd.read_csv(startpath + '/' + probe_file)
@@ -30,7 +30,7 @@ def clean_and_save_csv(probe_file, exp_file, time_step, output_file):
     # Time taken to print upto probe location point = 330 / 6.741 = 48.954 s
     new_df = pd.DataFrame()
     new_df[''] = ''     # Add a empty 1st column to new_df 
-    new_df['Time (s)'] = df_probe.iloc[:, timeCount_col_ind] * time_step - 48.954
+    new_df['Time (s)'] = df_probe.iloc[:, timeCount_col_ind] * time_step - timeOffset
     new_df['Temp Sim (K)'] = df_probe.iloc[:, 5]
     new_df = pd.concat([pd.DataFrame([['', '', '']], columns=new_df.columns), new_df], ignore_index=True)   # Add a empty row at the top of new_df
     
@@ -43,13 +43,24 @@ def clean_and_save_csv(probe_file, exp_file, time_step, output_file):
 if __name__ == "__main__":
     
     dt = 0.7416
-    if len(sys.argv) > 1:
+    material = 'abs'
+    timeOffset = 48.954
+    
+    if len(sys.argv) > 2:
         dt = float(sys.argv[1])
+        material = sys.argv[2]
     else:
-        print("Please provide the time step as an argument")
+        print("Please provide the time step and material (abs or pekk) as an argument")
         sys.exit(1)
         
     probe_file='probeTemp_imple2.csv'
-    exp_file='paperData_full.csv'
+    
+    if material == 'abs':
+        exp_file='paperData_full.csv'
+        timeOffset = 48.954
+    elif material == 'pekk':
+        exp_file='paperData_full_pekk.csv'
+        timeOffset = 53.2962
+    
     output_file='result.csv'
-    clean_and_save_csv(probe_file, exp_file, dt, output_file)
+    clean_and_save_csv(probe_file, exp_file, dt, output_file, timeOffset)
