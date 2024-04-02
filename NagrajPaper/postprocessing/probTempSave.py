@@ -2,6 +2,22 @@
 
 #### import the simple module from the paraview
 from paraview.simple import *
+import sys
+
+material = 'abs'
+material_diffusivity = 9e-08
+
+if len(sys.argv) > 1:
+    material = sys.argv[1]
+else:
+    print("Please provide the material (abs or pekk) as an argument")
+    sys.exit(1)
+
+if material == 'abs':
+    material_diffusivity = 9e-08
+elif material == 'pekk':
+    material_diffusivity = 1.99e-07
+
 #### disable automatic camera reset on 'Show'
 paraview.simple._DisableFirstRenderCameraReset()
 
@@ -24,7 +40,7 @@ threshold1.ThresholdRange = [0.0, 648.0892796586917]
 
 # Properties modified on threshold1
 threshold1.Scalars = ['CELLS', 'k']
-threshold1.ThresholdRange = [9e-08, 9e-08]
+threshold1.ThresholdRange = [material_diffusivity, material_diffusivity]
 
 # create a new 'Probe Location'
 probeLocation1 = ProbeLocation(registrationName='ProbeLocation1', Input=threshold1,

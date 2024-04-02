@@ -12,7 +12,7 @@ dt=$1
 material=$2
 
 python generate_pvd.py
-pvpython probTempSave.py
+pvpython probTempSave.py $material
 python allData_csvClearning.py $dt $material
 pdflatex -interaction=nonstopmode plot.tex
 pdflatex -interaction=nonstopmode fullPlot.tex
