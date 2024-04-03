@@ -30,7 +30,7 @@ def clean_and_save_csv(probe_file, exp_file, time_step, output_file, timeOffset)
     # Time taken to print upto probe location point = 330 / 6.741 = 48.954 s
     new_df = pd.DataFrame()
     new_df[''] = ''     # Add a empty 1st column to new_df 
-    new_df['Time (s)'] = df_probe.iloc[:, timeCount_col_ind] * time_step - timeOffset
+    new_df['Time (s)'] = df_probe.iloc[:, timeCount_col_ind] * time_step + timeOffset
     new_df['Temp Sim (K)'] = df_probe.iloc[:, 5]
     new_df = pd.concat([pd.DataFrame([['', '', '']], columns=new_df.columns), new_df], ignore_index=True)   # Add a empty row at the top of new_df
     
@@ -45,12 +45,14 @@ if __name__ == "__main__":
     dt = 0.7416
     material = 'abs'
     timeOffset = 48.954
+    numTimestepPerVoxel = 4
     
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
         dt = float(sys.argv[1])
         material = sys.argv[2]
+        numTimestepPerVoxel = int(sys.argv[3])
     else:
-        print("Please provide the time step and material (abs or pekk) as an argument")
+        print("Please provide the time step, material (abs or pekk) and number of time steps per voxel as input arguments")
         sys.exit(1)
         
     probe_file='probeTemp_imple2.csv'
@@ -61,6 +63,8 @@ if __name__ == "__main__":
     elif material == 'pekk':
         exp_file='paperData_full_pekk.csv'
         timeOffset = 53.2962
+    
+    timeOffset = -timeOffset + numTimestepPerVoxel * dt
     
     output_file='result.csv'
     clean_and_save_csv(probe_file, exp_file, dt, output_file, timeOffset)
