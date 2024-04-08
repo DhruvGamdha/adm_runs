@@ -22,12 +22,6 @@ def clean_and_save_csv(probe_file, exp_file, time_step, output_file, timeOffset)
     
     timeCount_col_ind = df_probe.columns.get_loc('Time')
     
-    # Subtracting the time take to print the volume upto the probe location point (30, 0, 4.4), wall size (60, 1.25, 50)
-    # Probe is at 6th layer, at the center of the wall, each layer is 0.8 mm tall, 1.25 mm wide, 60 mm long
-    # volume of each layer = 1.25 * 0.8 * 60 = 60 mm^3
-    # volume upto probe location point = 330 mm^3 ( 60 * 5 + 60 * 0.5)
-    # Printer speed = 6.741 mm^3/s
-    # Time taken to print upto probe location point = 330 / 6.741 = 48.954 s
     new_df = pd.DataFrame()
     new_df[''] = ''     # Add a empty 1st column to new_df 
     new_df['Time (s)'] = df_probe.iloc[:, timeCount_col_ind] * time_step + timeOffset
@@ -45,26 +39,45 @@ if __name__ == "__main__":
     dt = 0.7416
     material = 'abs'
     timeOffset = 48.954
-    numTimestepPerVoxel = 4
     
-    if len(sys.argv) > 3:
+    if len(sys.argv) == 3:
         dt = float(sys.argv[1])
         material = sys.argv[2]
-        numTimestepPerVoxel = int(sys.argv[3])
     else:
         print("Please provide the time step, material (abs or pekk) and number of time steps per voxel as input arguments")
         sys.exit(1)
         
     probe_file='probeTemp_imple2.csv'
     
+    
+    # Subtracting the time take to print the volume upto the probe location point (30, 0, 4.4)
+    # Probe is at 6th layer, at the center of the wall. 5.5 layers are printed to reach the probe location point.
+    # For ABS: 
+        # each layer is 0.8 mm tall, 1.25 mm wide, 60 mm long
+        # volume of each layer = 1.25 * 0.8 * 60 = 60 mm^3
+        # volume upto probe location point = 330 mm^3 (60 * 5.5)
+        # Printer speed = 6.741 mm/s
+        # Rate of volume deposition = 6.741 * 1.25 * 0.8 = 6.741 mm^3/s
+        # Time taken to print upto probe location point = 330 / 6.741 = 48.954 s
+    # For PEKK:
+        # each layer is 0.8 mm tall, 2.20 mm wide, 60 mm long
+        # volume of each layer = 2.20 * 0.8 * 60 = 105.6 mm^3
+        # volume upto probe location point = 580.8 mm^3 (105.6 * 5.5)
+        # Printer speed = 6.12 mm/s
+        # Rate of volume deposition = 6.12 * 2.20 * 0.8 = 10.7712 mm^3/s
+        # Time taken to print upto probe location point = 580.8 / 10.7712 = 53.9216 s
+    
     if material == 'abs':
         exp_file='paperData_full.csv'
         timeOffset = 48.954
     elif material == 'pekk':
         exp_file='paperData_full_pekk.csv'
-        timeOffset = 53.2962
+        timeOffset = 53.9216
+    else:
+        print("Please provide the material as abs or pekk")
+        sys.exit(1)
     
-    timeOffset = -timeOffset + numTimestepPerVoxel * dt
+    timeOffset = -timeOffset
     
     output_file='result.csv'
     clean_and_save_csv(probe_file, exp_file, dt, output_file, timeOffset)
