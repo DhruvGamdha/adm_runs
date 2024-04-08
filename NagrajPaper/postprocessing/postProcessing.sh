@@ -23,7 +23,7 @@ pvpython probTempSave.py $material
 # 3. Offsets the time by subracting the time at which the probe location is printed for the first time.
 # 4. Merge our simulation data with the data shared by Nagraj( Experimental and simulation data)
 # 5. Save the output as result.csv
-python allData_csvClearning.py $dt $material 
+python createResult.py $dt $material 
 
 # Reads the result.csv file and creates the plot as a pdf file
 pdflatex -interaction=nonstopmode plot.tex
