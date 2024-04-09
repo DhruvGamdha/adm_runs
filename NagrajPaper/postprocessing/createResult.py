@@ -39,12 +39,14 @@ if __name__ == "__main__":
     dt = 0.7416
     material = 'abs'
     timeOffset = 48.954
+    dx = 5
     
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         dt = float(sys.argv[1])
         material = sys.argv[2]
+        dx = float(sys.argv[3])
     else:
-        print("Please provide the time step, material (abs or pekk) and number of time steps per voxel as input arguments")
+        print("Inputs: <time step> <material (abs or pekk)> <voxel dx>")
         sys.exit(1)
         
     probe_file='probeTemp_imple2.csv'
@@ -69,10 +71,30 @@ if __name__ == "__main__":
     
     if material == 'abs':
         exp_file='paperData_full.csv'
-        timeOffset = 48.954
+        # timeOffset = 48.954 # time for (30, 0, 4.4) probe location
+        if dx == 5:
+            timeOffset = 48.3979  # time for (33.75, 0, 4.4) probe location, for voxel dx of 5mm
+        elif dx == 3:
+            timeOffset = 48.620
+        elif dx==2.5:
+            timeOffset = 48.6760
+        else:
+            print("Voxel dx should be 5, 3 or 2.5")
+            print("Setting timeOffset corresponding to original probe location")
+            timeOffset = 48.954
     elif material == 'pekk':
         exp_file='paperData_full_pekk.csv'
-        timeOffset = 53.9216
+        # timeOffset = 53.9216  # time for (30, 0, 4.4) probe location
+        if dx==5:
+            timeOffset = 53.3088    # time for (33.75, 0, 4.4) probe location, for voxel dx of 5mm
+        elif dx==3:
+            timeOffset = 53.5539
+        elif dx==2.5:
+            timeOffset = 53.6152
+        else:
+            print("Voxel dx should be 5, 3 or 2.5")
+            print("Setting timeOffset corresponding to original probe location")
+            timeOffset = 53.9216
     else:
         print("Please provide the material as abs or pekk")
         sys.exit(1)

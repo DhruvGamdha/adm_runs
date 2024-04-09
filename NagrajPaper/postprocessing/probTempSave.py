@@ -6,11 +6,14 @@ import sys
 
 material = 'abs'
 material_diffusivity = 9e-08
+dx=5
 
-if len(sys.argv) > 1:
+if len(sys.argv) == 3:
     material = sys.argv[1]
+    dx = float(sys.argv[2])
 else:
-    print("Please provide the material (abs or pekk) as an argument")
+    print("Please provide the material (abs or pekk) and element dx size as an argument")
+    print("<material (abs or pekk)> <voxel dx>")
     sys.exit(1)
 
 if material == 'abs':
@@ -47,8 +50,18 @@ probeLocation1 = ProbeLocation(registrationName='ProbeLocation1', Input=threshol
     ProbeType='Fixed Radius Point Source')
 
 # init the 'Fixed Radius Point Source' selected for 'ProbeType'
-probeLocation1.ProbeType.Center = [0.03, 0, 0.0044]
-
+# probeLocation1.ProbeType.Center = [0.03, 0, 0.0044] # Original probe location
+if dx == 5:
+    probeLocation1.ProbeType.Center = [0.03375, 0, 0.0044] # Shifted probe location for voxel dx of 5mm
+elif dx == 3:
+    probeLocation1.ProbeType.Center = [0.03225, 0, 0.0044] # Shifted probe location for voxel dx of 3mm
+elif dx == 2.5:
+    probeLocation1.ProbeType.Center = [0.031875, 0, 0.0044] # Shifted probe location for voxel dx of 2.5mm
+else:
+    print("Voxel dx should be 5, 3 or 2.5")
+    print("Setting the probe to the original location (30, 0, 4.4)")
+    probeLocation1.ProbeType.Center = [0.03, 0, 0.0044] # Original probe location
+    
 # create a new 'Plot Data Over Time'
 plotDataOverTime1 = PlotDataOverTime(registrationName='PlotDataOverTime1', Input=probeLocation1)
 
