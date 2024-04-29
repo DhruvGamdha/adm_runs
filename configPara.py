@@ -17,6 +17,7 @@ def createConfig(paraDict):
             "enable_subda": "false",
             "min": [0.0, 0.0, 0.0],
             "max": [0.08, 0.08, 0.08],
+            "physicalDomainMax": [0.08, 0.08, 0.08],
             "refine_walls": "true"
         },
         "solver_options_ht": {
