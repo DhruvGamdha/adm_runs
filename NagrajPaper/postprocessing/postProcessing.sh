@@ -1,5 +1,4 @@
 # bash script to run post processing on the output of the simulation to create plots
-# exe run command: mpirun -n 8 <path_to_exe_dir>/adm 2>&1 | tee output.log
 
 # Check if no arguments were passed
 if [ $# -ne 3 ]; then
@@ -12,8 +11,11 @@ dt=$1
 material=$2
 dx=$3
 
+# exe run command: mpirun -n 8 <path_to_exe_dir>/adm 2>&1 | tee output.log
+# mpirun -n 8 /media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-release/adm 2>&1 | tee output.log
+
 # # Generate pvd file, which is used by Paraview to load the data
-# python generate_pvd.py
+python generate_pvd.py
 
 # Load the pvd file and save the temperature value at the probe location in a csv file (probeTemp_imple2.csv)
 pvpython probTempSave.py $material $dx
