@@ -11,6 +11,9 @@ from utils import createLatestDir, prepareDirectories, changeDirectory, setupRun
 
 def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
+    timeTakenFileName = "timetaken.txt"
+    eosFileName = "eos.txt"
+    
     cfg = createConfig(paraDict)
     
     testsDir_po, geoDir_po = prepareDirectories(baseDirPathObj)
@@ -21,11 +24,14 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     
     printGeom = paraDict['voxelOrderFilename']
     
-    startOverall, timeTakenFile, dataDirPathObj = setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg)
+    dataDirPathObj = setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg)
     
-    runSimulation(exePath, paraDict, timeTakenFile, dataDirPathObj)
+    runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileName)
     
-    cleanupAndArchiveData(runDirPathObj, printGeom, startOverall, timeTakenFile, dataDirPathObj)
+    if dataDirPathObj/ eosFileName:
+        print("Simulation completed successfully.")
+        print("Cleaning up and archiving data.")
+        cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj)
     
     return
               

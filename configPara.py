@@ -94,7 +94,7 @@ def geometryParaCombination(geoName, numNodes):
             'refine_level_voxel': 6,
             'baseProcs': 8,
             'maxProcs': 128,
-            'baseBreakPoint' : 3000,
+            'baseBreakPoint' : 15000,
             'outputSpan': 500,
             'checkpointFrequency': 1000,
             'voxelIncrementNumber': 16,

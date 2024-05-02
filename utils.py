@@ -123,9 +123,6 @@ def setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg):
     """
     Set up the environment for running the simulation.
     """
-    timeTakenFile = open("timetaken.txt", "w")
-    timeTakenFile.write("Geometry file: " + printGeom + "\n")
-    timeTakenFile.flush()
 
     # Create data directory inside the version directory
     dataDirPathObj = createLatestDir(runDirPathObj, 'data')
@@ -138,7 +135,7 @@ def setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg):
         f.flush()
         f.close()
 
-    return time.time(), timeTakenFile, dataDirPathObj
+    return dataDirPathObj
 
 def evaluateCompletion(dataDirPathObj):
     """
@@ -157,11 +154,17 @@ def evaluateCompletion(dataDirPathObj):
 
     return amountComplete, lastProcs
 
-def runSimulation(exePath, paraDict, timeTakenFile, dataDirPathObj):
+def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileName):
     runProcs = 1
     lastProcs = 0
     isStartRun = True
     counter = 0
+    
+    # Create a time taken file to record the time taken for each run
+    timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')
+    timeTakenFile.write("Geometry file: " + paraDict['voxelOrderFilename'] + "\n")
+    timeTakenFile.flush()
+    timeTakenFile.close()
     
     while True:
         runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
@@ -179,40 +182,38 @@ def runSimulation(exePath, paraDict, timeTakenFile, dataDirPathObj):
         
         amountComplete, lastProcs = evaluateCompletion(dataDirPathObj)
         
+        timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')
         timeTakenFile.write(f"Run {counter} with Procs = {runProcs} took {endRun_time - startRun_time} seconds, simulation progress = {amountComplete}\n")
         timeTakenFile.flush()
+        timeTakenFile.close()
         
         counter += 1
 
-        if os.path.isfile("eos.txt"):
+        if os.path.isfile(eosFileName):
             break
         
-def cleanupAndArchiveData(runDirPathObj, printGeom, startOverall, timeTakenFile, dataDirPathObj):
+def cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj):
     
+    # Move all the non-directory files from data directory to the run directory
+    allFiles = [f for f in dataDirPathObj.iterdir() if f.is_file()]
+    for file in allFiles:
+        shutil.move(file, runDirPathObj / file.name)
+        
+    # copy the last solution directory to the run directory
     solDirfrmt = 'cellData'
-    
     lastSolDirStepCount = max([int(d.name[solDirfrmt.__len__():]) for d in dataDirPathObj.iterdir() if d.is_dir() and d.name.startswith(solDirfrmt)])
     lastSolDirName = solDirfrmt + str(lastSolDirStepCount)
-
-    fileDirList_wType = [
-        {'name': 'config.txt', 'isDir': False}, 
-        {'name': printGeom, 'isDir': False},
-        {'name': 'output.log', 'isDir': False}, 
-        {'name': lastSolDirName, 'isDir': True}
-    ]
-
-    for fileDir_wType in fileDirList_wType:
-        file = fileDir_wType['name']
-        isDir = fileDir_wType['isDir']
-        checkDirFileExists(dataDirPathObj / file, isDir)
-        shutil.move(dataDirPathObj / file, runDirPathObj / file)
+    checkDirFileExists(dataDirPathObj / lastSolDirName, True)
+    shutil.copytree(dataDirPathObj / lastSolDirName, runDirPathObj / lastSolDirName)
 
     os.chdir(runDirPathObj)
-
+    
+    tarStartTime = time.time()
     tarCommand = ['tar', '-czf', dataDirPathObj.name + '.tar.gz', dataDirPathObj.name]
     subprocess.run(tarCommand)
-
-    endOverall = time.time()
-    timeTakenOverall = endOverall - startOverall
-    timeTakenFile.write(f"Overall time {timeTakenOverall:.2f} seconds \n")
+    tarEndTime = time.time()
+    
+    timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')
+    timeTakenFile.write(f"Archiving took {tarEndTime - tarStartTime} seconds\n")
+    timeTakenFile.flush()
     timeTakenFile.close()
