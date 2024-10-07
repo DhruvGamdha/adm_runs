@@ -42,7 +42,8 @@ def checkDirFileExists(pathObj, isDir=True, isRaiseError=True):
     
 def runExe(exePath, nProcs, isStartRun):
     try:
-        command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+        # command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+        command = ['ibrun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
 
         # Add resume flag for a non-start run
         if not isStartRun:

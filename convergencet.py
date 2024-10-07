@@ -43,11 +43,11 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         geomName = "bunny_32_sparse2.csv"
         numNodes = 1
-        computeSystem = 'local' # 'local', 'nova', 'anvil'
+        computeSystem = 'local' # 'local', 'nova', 'anvil', 'frontera'
     else:
         geomName = sys.argv[1]
         numNodes = int(sys.argv[2])
-        computeSystem = sys.argv[3] # 'local', 'nova', 'anvil'
+        computeSystem = sys.argv[3] # 'local', 'nova', 'anvil', 'frontera'
     
     # ************ Local ************
     if computeSystem == 'local':
@@ -70,10 +70,17 @@ if __name__ == "__main__":
         runTemplate     = "anvil_run_{0:03d}"
     # *******************************
     
+    # ************ FRONTERA ************
+    if computeSystem =='frontera':
+        baseDirPathObj  = pl.Path("/scratch1/09374/dgamdha/projects/leaphi/adm_runs/")
+        exePath         = "/work2/09374/dgamdha/frontera/projects/leaphi/softwares/admanufacturing/build_release/adm"
+        runTemplate     = "frontera_run_{0:03d}"
+    # *******************************
+    
     # Check is baseDirPathObj and exePath exist
     if not os.path.isdir(baseDirPathObj) or not os.path.isfile(exePath):
         raise ValueError("baseDirPathObj and exePath must exist.")
         
-    paraDict = geometryParaCombination(geomName, numNodes)
+    paraDict = geometryParaCombination(geomName, numNodes, computeSystem)
     
     runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate)

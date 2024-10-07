@@ -16,8 +16,8 @@ def createConfig(paraDict):
             "refine_lvl_channel_wall": 2,
             "enable_subda": "false",
             "min": [0.0, 0.0, 0.0],
-            "max": [0.08, 0.08, 0.08],
-            "physicalDomainMax": [0.08, 0.08, 0.08],
+            "max": paraDict['mesh_max'],
+            "physicalDomainMax": paraDict['mesh_physicalDomainMax'],
             "refine_walls": "true"
         },
         "solver_options_ht": {
@@ -58,106 +58,154 @@ def createConfig(paraDict):
     
     return cfgDict
 
-def geometryParaCombination(geoName, numNodes):
+def geometryParaCombination(geoName, numNodes, computeSystem):
     
-    if geoName == "Cube_voxRes_32.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 8,
-            'maxProcs': 128,
-            'baseBreakPoint' : 3000,
-            'outputSpan': 200,
-            'checkpointFrequency': 1000000,
-            'voxelIncrementNumber': 2,
-            'dt': 0.01*2,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_32_zeroSparsity.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 5,
-            'baseProcs': 16,
-            'maxProcs': 32,
-            'baseBreakPoint' : 100000,
-            'outputSpan': 100,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 2,
-            'dt': 2.318*2/10,
-            'numTimestepPerVoxel':10
-        }
+    if computeSystem == 'anvil':
+        if geoName == "Cube_voxRes_32.csv" and numNodes == 1:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 5,
+                'baseProcs': 8,
+                'maxProcs': 128,
+                'baseBreakPoint' : 3000,
+                'outputSpan': 200,
+                'checkpointFrequency': 1000000,
+                'voxelIncrementNumber': 2,
+                'dt': 0.01*2,
+                'numTimestepPerVoxel': 4
+            }
         
-    if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 128,
-            'baseBreakPoint' : 15000,
-            'outputSpan': 500,
-            'checkpointFrequency': 1000,
-            'voxelIncrementNumber': 16,
-            'dt': 0.01*16,
-            'numTimestepPerVoxel': 4
-        }
-        
-    if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 2:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 6,
-            'baseProcs': 8,
-            'maxProcs': 256,
-            'baseBreakPoint' : 3000,
-            'outputSpan': 6000,
-            'checkpointFrequency': 12000,
-            'voxelIncrementNumber': 1,
-            'dt': 0.01*1,
-            'numTimestepPerVoxel': 4
-        }
-    
-    if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 1:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 32,
-            'maxProcs': 128,
-            'baseBreakPoint' : 48000,
-            'outputSpan': 25,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 130,
-            'dt': 0.0362*130/10,
-            'numTimestepPerVoxel':10
-        }
-    
-    if geoName == "bunny_256_zeroSparsity.csv" and numNodes == 4:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 8,
-            'refine_lvl_base': 5,
-            'baseProcs': 128,
-            'maxProcs': 512,
-            'baseBreakPoint' : 500000,
-            'outputSpan': 10,
-            'checkpointFrequency': 10,
-            'voxelIncrementNumber': 1100,
-            'dt': 0.00453*1100/10,
-            'numTimestepPerVoxel':10
+        if geoName == "bunny_32_zeroSparsity.csv" and numNodes == 1:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 5,
+                'baseProcs': 16,
+                'maxProcs': 32,
+                'baseBreakPoint' : 100000,
+                'outputSpan': 100,
+                'checkpointFrequency': 10,
+                'voxelIncrementNumber': 2,
+                'dt': 2.318*2/10,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
             
-        }
+        if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 1:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 128,
+                'baseBreakPoint' : 15000,
+                'outputSpan': 500,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 16,
+                'dt': 0.01*16,
+                'numTimestepPerVoxel': 4,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
+            
+        if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 256,
+                'baseBreakPoint' : 3000,
+                'outputSpan': 6000,
+                'checkpointFrequency': 12000,
+                'voxelIncrementNumber': 1,
+                'dt': 0.01*1,
+                'numTimestepPerVoxel': 4,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
         
-    if geoName == "Moai_128_zeroSparsity.csv" and numNodes == 3:
-        paraDict = {
-            'voxelOrderFilename': geoName,
-            'refine_level_voxel': 7,
-            'baseProcs': 8,
-            'maxProcs': 384,
-            'baseBreakPoint' : 4000,
-            'outputSpan': 50,
-            'checkpointFrequency': 1000000,
-            'voxelIncrementNumber': 130,
-            'dt': 0.01*130,
-            'numTimestepPerVoxel': 4
-        }
+        if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 1:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 128,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 25,
+                'checkpointFrequency': 10,
+                'voxelIncrementNumber': 130,
+                'dt': 0.0362*130/10,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
+        
+        if geoName == "bunny_256_zeroSparsity.csv" and numNodes == 4:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 8,
+                'refine_lvl_base': 5,
+                'baseProcs': 128,
+                'maxProcs': 512,
+                'baseBreakPoint' : 500000,
+                'outputSpan': 10,
+                'checkpointFrequency': 10,
+                'voxelIncrementNumber': 1100,
+                'dt': 0.00453*1100/10,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+                
+            }
+            
+        if geoName == "Moai_128_zeroSparsity.csv" and numNodes == 3:
+            assert False, "Please find and fill the mesh_max and mesh_physicalDomainMax for Moai"
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 7,
+                'baseProcs': 8,
+                'maxProcs': 384,
+                'baseBreakPoint' : 4000,
+                'outputSpan': 50,
+                'checkpointFrequency': 1000000,
+                'voxelIncrementNumber': 130,
+                'dt': 0.01*130,
+                'numTimestepPerVoxel': 4,
+                'mesh_max': [0,0,0],
+                'mesh_physicalDomainMax': [0,0,0]
+            }
+    
+    elif computeSystem == 'frontera':
+        
+        if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 1:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 56,
+                'baseBreakPoint' : 30000,
+                'outputSpan': 3,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 16,
+                'dt': 0.03185*16,
+                'numTimestepPerVoxel': 4,
+                'mesh_max': [0.06083, 0.06083, 0.06083],
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+            }
+        
+        if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 112,
+                'baseBreakPoint' : 15000,
+                'outputSpan': 3,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 16,
+                'dt': 0.03185*16,
+                'numTimestepPerVoxel': 4,
+                'mesh_max': [0.06083, 0.06083, 0.06083],
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+            }
         
     return paraDict
