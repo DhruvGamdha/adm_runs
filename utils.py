@@ -217,4 +217,16 @@ def cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj):
     timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')
     timeTakenFile.write(f"Archiving took {tarEndTime - tarStartTime} seconds\n")
     timeTakenFile.flush()
-    timeTakenFile.close()
+    timeTakenFile.close()    
+
+def createPVDFiles(baseDirPathObj, dataDirPathObj):
+    
+    print("Start to create .pvd files ")
+    
+    pvdPythonScript = "generate_pvd.py"
+    shutil.copyfile(baseDirPathObj / pvdPythonScript, dataDirPathObj / pvdPythonScript)
+    pythonScriptCommand = ['python', pvdPythonScript ]
+    subprocess.run(pythonScriptCommand)
+    
+    print("DONE: Created .pvd files")
+    

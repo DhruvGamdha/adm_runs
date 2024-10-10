@@ -199,11 +199,11 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'baseProcs': 8,
                 'maxProcs': 112,
                 'baseBreakPoint' : 15000,
-                'outputSpan': 3,
+                'outputSpan': 20,
                 'checkpointFrequency': 1000,
                 'voxelIncrementNumber': 16,
-                'dt': 0.03185*16,
-                'numTimestepPerVoxel': 4,
+                'dt': 0.03185*16/2,
+                'numTimestepPerVoxel': 8,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
             }

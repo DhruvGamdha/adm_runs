@@ -6,7 +6,7 @@ import sys
 from configPara import geometryParaCombination, createConfig
 
 # measure process time
-from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData
+from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData, createPVDFiles
 
 
 def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
@@ -32,6 +32,7 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
         print("Simulation completed successfully.")
         print("Cleaning up and archiving data.")
         cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj)
+        createPVDFiles(baseDirPathObj, dataDirPathObj)
     
     return
               
