@@ -52,8 +52,8 @@ if __name__ == "__main__":
     
     # ************ Local ************
     if computeSystem == 'local':
-        baseDirPathObj  = pl.Path("/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs/")
-        exePath         = "/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/cmake-build-release/adm"
+        baseDirPathObj  = pl.Path("/media/dgamdha/dataSSD/dhruv_ssd/ISU/PhD/Projects/LEAP_HI/runs/adm_runs/")
+        exePath         = "/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/admanufacturing/build_release/adm"
         runTemplate     = "local_run_{0:03d}"
     # *******************************
     
