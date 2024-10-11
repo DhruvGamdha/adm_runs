@@ -207,6 +207,22 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
             }
+        
+        if geoName == "printCorrected_3DBenchy_128R.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 112,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 20,
+                'checkpointFrequency': 100,
+                'voxelIncrementNumber': 130,
+                'dt': 0.03185*130/10,
+                'numTimestepPerVoxel': 10,
+                'mesh_max': [0.06083, 0.06083, 0.06083],
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+            }
     
     elif computeSystem == 'local':
         if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 1:
