@@ -219,14 +219,19 @@ def cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj):
     timeTakenFile.flush()
     timeTakenFile.close()    
 
-def createPVDFiles(baseDirPathObj, dataDirPathObj):
+def paraviewStuff(baseDirPathObj, dataDirPathObj):
     
     print("Start to create .pvd files ")
     
     pvdPythonScript = "generate_pvd.py"
-    shutil.copyfile(baseDirPathObj / pvdPythonScript, dataDirPathObj / pvdPythonScript)
+    shutil.copyfile(baseDirPathObj / "paraview" / pvdPythonScript, dataDirPathObj / pvdPythonScript)
     pythonScriptCommand = ['python', pvdPythonScript ]
     subprocess.run(pythonScriptCommand)
     
     print("DONE: Created .pvd files")
+    
+    # copy pvSaveAnimation.py to the data directory
+    pvSaveAnimationScript = "pvSaveAnimation.py"
+    shutil.copyfile(baseDirPathObj / "paraview" / pvSaveAnimationScript, dataDirPathObj / pvSaveAnimationScript)
+    print("DONE: Copied pvSaveAnimation.py")
     
