@@ -33,7 +33,11 @@ map_dir = { 0: 'temperature', 1: 'voxel', 2: 'octree'}
 # Create directories at the level of the "data" directory, i.e. at the level of the "runs" directory
 dirs = [ map_dir[i] for i in range(3)]
 for d in dirs:
-    pl.Path(cwd).parent.joinpath(d).mkdir(parents=True, exist_ok=True)
+    dir_path = pl.Path(cwd).parent.joinpath(d)
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True)
+# for d in dirs:
+#     pl.Path(cwd).parent.joinpath(d).mkdir(parents=True, exist_ok=True)
     
 # Create dictionary of paths to the directories
 pathToDirs = {d: pl.Path(cwd).parent.joinpath(d) for d in dirs}
@@ -53,9 +57,11 @@ paraview_markerpvd.PointArrays = ['k']
 animationScene1 = GetAnimationScene()
 animationScene1.UpdateAnimationUsingDataTimeSteps()
 
-# Get the total number of frames for save animation
-numFrames = int(animationScene1.EndTime)
-print(f"Total number of frames: {numFrames}")
+# Get the time keeper and time steps
+timeKeeper = GetTimeKeeper()
+time_steps = timeKeeper.TimestepValues
+numFrames = len(time_steps)
+print("Total number of frames: {0}".format(numFrames))
 
 # get active view
 renderView1 = GetActiveViewOrCreate('RenderView')
@@ -125,7 +131,7 @@ threshold1Display.SetScalarBarVisibility(renderView1, False)
 
 # Set the layout size for rendering
 layout1 = GetLayout()
-layout1.SetSize(2046, 2046)
+layout1.SetSize([2046, 2046])
 layout1.PreviewMode = [2048, 2048]
 
 animationScene1.GoToLast()
@@ -147,5 +153,5 @@ renderView1.CameraParallelProjection = 1
 SaveAnimation(  str(pathToDirs[map_dir[0]] / 'image.png'), 
                 renderView1, ImageResolution=[2046, 2046],
                 OverrideColorPalette='WhiteBackground',
-                FrameWindow=[0, numFrames], 
+                FrameWindow=[0, numFrames-1], 
                 CompressionLevel='1')
