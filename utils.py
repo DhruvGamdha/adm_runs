@@ -225,8 +225,11 @@ def paraviewStuff(baseDirPathObj, dataDirPathObj):
     
     pvdPythonScript = "generate_pvd.py"
     shutil.copyfile(baseDirPathObj / "paraview" / pvdPythonScript, dataDirPathObj / pvdPythonScript)
+    
+    os.chdir(dataDirPathObj)
     pythonScriptCommand = ['python', pvdPythonScript ]
     subprocess.run(pythonScriptCommand)
+    os.chdir(baseDirPathObj)
     
     print("DONE: Created .pvd files")
     
