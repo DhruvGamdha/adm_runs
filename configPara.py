@@ -176,6 +176,38 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
     
     elif computeSystem == 'frontera':
         
+        if geoName == "bunny_64_zeroSparsity.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 112,
+                'baseBreakPoint' : 15000,
+                'outputSpan': 20,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 16,
+                'dt': 0.2897*16/8,
+                'numTimestepPerVoxel': 8,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
+        
+        if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 112,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 25,
+                'checkpointFrequency': 100,
+                'voxelIncrementNumber': 130,
+                'dt': 0.018*130/10,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+            }
+        
         if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 1:
             paraDict = {
                 'voxelOrderFilename': geoName,
@@ -186,7 +218,7 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'outputSpan': 3,
                 'checkpointFrequency': 1000,
                 'voxelIncrementNumber': 16,
-                'dt': 0.03185*16,
+                'dt': 0.12739*16/4 ,
                 'numTimestepPerVoxel': 4,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
@@ -202,7 +234,7 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'outputSpan': 20,
                 'checkpointFrequency': 1000,
                 'voxelIncrementNumber': 16,
-                'dt': 0.03185*16/2,
+                'dt': 0.12739*16/8,
                 'numTimestepPerVoxel': 8,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
@@ -218,7 +250,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'outputSpan': 20,
                 'checkpointFrequency': 100,
                 'voxelIncrementNumber': 130,
-                'dt': 0.03185*130/10,
+                # 'dt': 0.0159*130/10,
+                'dt': 0.00795*130/10,
                 'numTimestepPerVoxel': 10,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]

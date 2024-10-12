@@ -1,5 +1,21 @@
 # trace generated using paraview version 5.9.1
 
+# Run instrustions:
+# copy the pvSaveAnimation.py file inside the data directory containing below stuff
+    #<run_system>_run_###
+    #   |---data
+    #       |---cellData*
+    #       |---paraview_ch.pvd
+    #       |---paraview_marker.pvd
+    #       |---pvSaveAnimation.py
+# comment and uncomment lines between 161 to 171 depending on the geometry (bunny/3DBenchy) processed.
+
+# commands:
+    # local system: pvbatch pvSaveAnimation.py <abs or pekk>
+    # frontera:
+        # source ~/pvmodules.sh
+        # swr -p 1 pvbatch pvSaveAnimation.py <abs or pekk>
+
 #### import the simple module from the paraview
 from paraview.simple import *
 import os
@@ -100,6 +116,9 @@ threshold1.ThresholdRange = [matDiff, matDiff]
 # show data in view
 threshold1Display = Show(threshold1, renderView1, 'UnstructuredGridRepresentation')
 
+# Set representation to 'Surface With Edges'
+threshold1Display.Representation = 'Surface With Edges'
+
 # hide data in view
 Hide(appendAttributes1, renderView1)
 
@@ -136,12 +155,20 @@ layout1.PreviewMode = [2048, 2048]
 
 animationScene1.GoToLast()
 
+renderView1.CameraParallelProjection = 1
+
 # current camera placement for renderView1
+# 3DBenchy
 renderView1.CameraPosition = [0.11074966357080558, -0.021912925896228903, 0.1262262240511014]
 renderView1.CameraFocalPoint = [0.009577158535611967, 0.036499047120428875, 0.009402278017785835]
 renderView1.CameraViewUp = [-0.6123724356957945, 0.3535533905932737, 0.7071067811865477]
 renderView1.CameraParallelScale = 0.03533928265994693
-renderView1.CameraParallelProjection = 1
+
+# Bunny
+# renderView1.CameraPosition = [0.17574178960415185, -0.039904191541431905, 0.19584864804186755]
+# renderView1.CameraFocalPoint = [0.021382434073012827, 0.04921522392640838, 0.01760981710618692]
+# renderView1.CameraViewUp = [-0.6123724356957947, 0.3535533905932739, 0.7071067811865474]
+# renderView1.CameraParallelScale = 0.053917305837437
 
 # saveScreenshot( str(pathToDirs[map_dir[0]] / 'image.png'), 
 #                 renderView1, 
