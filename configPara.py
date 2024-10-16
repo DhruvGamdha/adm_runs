@@ -52,8 +52,8 @@ def createConfig(paraDict):
         "baseBreakPoint" : paraDict['baseBreakPoint'],
         "ifPrintStat": False,
         "ifPrintInfo": True,
-        "ifPrintWarn": False
-        
+        "ifPrintWarn": False,
+        "coolDownNumTimesteps": paraDict['coolDownNumTimesteps']
     }
     
     return cfgDict
@@ -189,7 +189,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.2897*16/8,
                 'numTimestepPerVoxel': 8,
                 'mesh_max': [0.08, 0.08, 0.08],
-                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 5000
             }
         
         if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 2:
@@ -205,7 +206,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.018*130/10,
                 'numTimestepPerVoxel':10,
                 'mesh_max': [0.08, 0.08, 0.08],
-                'mesh_physicalDomainMax': [0.08, 0.08, 0.08]
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 10000
             }
         
         if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 1:
@@ -221,7 +223,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.12739*16/4 ,
                 'numTimestepPerVoxel': 4,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
-                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'coolDownNumTimesteps': 5000
             }
         
         if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 2:
@@ -237,7 +240,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.12739*16/8,
                 'numTimestepPerVoxel': 8,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
-                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'coolDownNumTimesteps': 5000
             }
         
         if geoName == "printCorrected_3DBenchy_128R.csv" and numNodes == 2:
@@ -254,7 +258,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.00795*130/10,
                 'numTimestepPerVoxel': 10,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
-                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'coolDownNumTimesteps': 10000
             }
     
     elif computeSystem == 'local':
@@ -271,7 +276,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'dt': 0.03185*16,
                 'numTimestepPerVoxel': 4,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
-                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083]
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'coolDownNumTimesteps': 5000
             }
         
     return paraDict

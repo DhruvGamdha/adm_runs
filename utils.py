@@ -40,7 +40,7 @@ def checkDirFileExists(pathObj, isDir=True, isRaiseError=True):
         return checkResult
     
     
-def runExe(exePath, nProcs, isStartRun):
+def runExe(exePath, nProcs, isStartRun, isCoolDown=False):
     try:
         # command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
         command = ['ibrun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
@@ -48,6 +48,10 @@ def runExe(exePath, nProcs, isStartRun):
         # Add resume flag for a non-start run
         if not isStartRun:
             command.insert(-3, '-resume_from_checkpoint')
+            
+        # Add cool_down flag for a cool down run
+        if isCoolDown:
+            command.insert(-3, '-cool_down')
 
         with open('output.log', 'a' if not isStartRun else 'w') as f:
             f.write(' '.join(command) + '\n')
@@ -171,7 +175,7 @@ def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileN
         runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
         
         startRun_time = time.time()
-        runExe(exePath, runProcs, isStartRun)
+        runExe(exePath, runProcs, isStartRun, False)
         endRun_time = time.time()
         
         if not isStartRun:
@@ -192,7 +196,34 @@ def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileN
 
         if os.path.isfile(eosFileName):
             break
+
+def runCoolDown(exePath, timeTakenFileName, dataDirPathObj):
+    # Find the last procs used and restart the simulation with those procs with
+    # resume_from_checkpoint and cool_down flags
+    lastProcs = 0
+    amountComplete = ""
+    try:
+        amountComplete, lastProcs = evaluateCompletion(dataDirPathObj)
+    except Exception as e:
+        print(f"An exception occurred: {e}")
         
+    # Check if CheckPoint and CheckPoint_1 directories exist
+    checkDirFileExists(dataDirPathObj / 'CheckPoint', True)
+    checkDirFileExists(dataDirPathObj / 'CheckPoint_1', True)
+    
+    runProcs = lastProcs
+    isStartRun = False
+    isCoolDown = True
+    
+    startRun_time = time.time()
+    runExe(exePath, runProcs, isStartRun, isCoolDown)
+    endRun_time = time.time()
+    
+    timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')
+    timeTakenFile.write(f"Cool down run took {endRun_time - startRun_time} seconds.\n")
+    timeTakenFile.flush()
+    timeTakenFile.close()
+
 def cleanupAndArchiveData(runDirPathObj, timeTakenFileName, dataDirPathObj):
     
     # Move all the non-directory files from data directory to the run directory

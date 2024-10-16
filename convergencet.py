@@ -6,7 +6,7 @@ import sys
 from configPara import geometryParaCombination, createConfig
 
 # measure process time
-from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData, paraviewStuff
+from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData, paraviewStuff, runCoolDown
 
 
 def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
@@ -27,6 +27,8 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     dataDirPathObj = setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg)
     
     runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileName)
+    
+    runCoolDown(exePath, timeTakenFileName, dataDirPathObj)
     
     if dataDirPathObj/ eosFileName:
         print("Simulation completed successfully.")
