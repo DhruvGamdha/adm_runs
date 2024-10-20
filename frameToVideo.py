@@ -2,14 +2,18 @@
 import os
 import cv2
 
-# path to directory containing frames
-baseDataDir = '/media/dgamdha/data/Dhruv/ISU/PhD/Projects/LEAP_HI/software/runs/adm_runs'
-
-frame_dir = baseDataDir + '/tests/testing/cube/run11/frames/slice'
 framerate = 15
-videoName = "video_" + str(framerate) 
+videoName = "temperature_" + str(framerate) 
 videoFormat = ".avi"
-output_video = baseDataDir + '/' + videoName + videoFormat
+
+# path to directory containing frames
+# baseDataDir = '/media/dgamdha/dataSSD/dhruv_ssd/ISU/PhD/Projects/LEAP_HI/runs/adm_runs'
+# frame_dir = baseDataDir + '/tests/frontera_run_009/temperature'
+# output_video = baseDataDir + '/' + videoName + videoFormat
+
+runDir = '/media/dgamdha/dataSSD/dhruv_ssd/ISU/PhD/Projects/LEAP_HI/runs/adm_runs/tests/frontera_run_011'
+frame_dir = runDir + '/temperature'
+output_video = runDir + '/' + videoName + videoFormat
 
 # get list of frames in directory
 frames = [f for f in os.listdir(frame_dir) if f.endswith('.png')]
@@ -39,7 +43,8 @@ for frame_name in frames:
 cv2.destroyAllWindows()
 video.release()
 
-os.chdir(baseDataDir)
+# os.chdir(baseDataDir)
+os.chdir(runDir)
 command = 'ffmpeg -i ' + videoName + videoFormat + ' -vcodec libx264 -acodec aac ' + videoName + '.mp4'
 print("Command  :",command)
 os.system(command)
