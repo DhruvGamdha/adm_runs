@@ -183,14 +183,14 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'baseProcs': 8,
                 'maxProcs': 112,
                 'baseBreakPoint' : 15000,
-                'outputSpan': 20,
+                'outputSpan': 5,
                 'checkpointFrequency': 1000,
-                'voxelIncrementNumber': 16,
-                'dt': 0.2897*16/8,
+                'voxelIncrementNumber': 147,
+                'dt': 0.03147*147/8,
                 'numTimestepPerVoxel': 8,
                 'mesh_max': [0.08, 0.08, 0.08],
                 'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
-                'coolDownNumTimesteps': 5000
+                'coolDownNumTimesteps': 7000
             }
         
         if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 2:
@@ -202,12 +202,12 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'baseBreakPoint' : 48000,
                 'outputSpan': 25,
                 'checkpointFrequency': 100,
-                'voxelIncrementNumber': 130,
-                'dt': 0.018*130/10,
+                'voxelIncrementNumber': 198,
+                'dt': 0.00393*198/10,
                 'numTimestepPerVoxel':10,
                 'mesh_max': [0.08, 0.08, 0.08],
                 'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
-                'coolDownNumTimesteps': 10000
+                'coolDownNumTimesteps': 7000
             }
         
         if geoName == "printCorrected_3DBenchy_64R.csv" and numNodes == 1:
@@ -234,14 +234,14 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'baseProcs': 8,
                 'maxProcs': 112,
                 'baseBreakPoint' : 15000,
-                'outputSpan': 20,
+                'outputSpan': 5,
                 'checkpointFrequency': 1000,
-                'voxelIncrementNumber': 16,
-                'dt': 0.12739*16/8,
+                'voxelIncrementNumber': 91,
+                'dt': 0.02391*91/8,
                 'numTimestepPerVoxel': 8,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
-                'coolDownNumTimesteps': 5000
+                'coolDownNumTimesteps': 10000
             }
         
         if geoName == "printCorrected_3DBenchy_128R.csv" and numNodes == 2:
@@ -251,14 +251,31 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'baseProcs': 32,
                 'maxProcs': 112,
                 'baseBreakPoint' : 48000,
+                'outputSpan': 1,
+                'checkpointFrequency': 5,
+                'voxelIncrementNumber': 1830,
+                # 'dt': 0.003977*130/10,
+                'dt': 0.002376*1830/120,
+                'numTimestepPerVoxel': 120,
+                'mesh_max': [0.06083, 0.06083, 0.06083],
+                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'coolDownNumTimesteps': 10000
+            }
+            
+        if geoName == "Moai_128.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 112,
+                'baseBreakPoint' : 48000,
                 'outputSpan': 20,
                 'checkpointFrequency': 100,
                 'voxelIncrementNumber': 130,
-                # 'dt': 0.0159*130/10,
-                'dt': 0.00795*130/10,
+                'dt': 0.0647,
                 'numTimestepPerVoxel': 10,
-                'mesh_max': [0.06083, 0.06083, 0.06083],
-                'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
+                'mesh_max': [0.1014, 0.1014, 0.1014],
+                'mesh_physicalDomainMax': [0.1014, 0.1014, 0.1014],
                 'coolDownNumTimesteps': 10000
             }
     
