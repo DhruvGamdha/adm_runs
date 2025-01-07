@@ -8,6 +8,5 @@ test.mcr
 csvFiles/
 __pycache__/
 slurm_files/
-*.slurm
 geometries/
 NagrajPaper/geo/old/*.csv
