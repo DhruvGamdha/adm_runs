@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<CustomViewpointsConfiguration version="1.0">
+  <CustomViewpointButton0>
+    <ToolTip value="Current Viewpoint 1" />
+    <Configuration is_empty="0">
+      <PVCameraConfiguration description="ParaView camera configuration" version="1.0">
+        <Proxy group="views" type="RenderView" id="6219" servers="21">
+          <Property name="CameraPosition" id="6219.CameraPosition" number_of_elements="3">
+            <Element index="0" value="0.19686163888330363" />
+            <Element index="1" value="-0.12008590446721502" />
+            <Element index="2" value="0.1741596364229267" />
+          </Property>
+          <Property name="CameraFocalPoint" id="6219.CameraFocalPoint" number_of_elements="3">
+            <Element index="0" value="0.028797357466208238" />
+            <Element index="1" value="0.04797837694988043" />
+            <Element index="2" value="0.03693572526979305" />
+          </Property>
+          <Property name="CameraViewUp" id="6219.CameraViewUp" number_of_elements="3">
+            <Element index="0" value="-0.35355339059327384" />
+            <Element index="1" value="0.3535533905932741" />
+            <Element index="2" value="0.8660254037844386" />
+          </Property>
+          <Property name="CenterOfRotation" id="6219.CenterOfRotation" number_of_elements="3">
+            <Element index="0" value="0.03960937634110451" />
+            <Element index="1" value="0.030103124678134918" />
+            <Element index="2" value="0.050700001418590546" />
+          </Property>
+          <Property name="RotationFactor" id="6219.RotationFactor" number_of_elements="1">
+            <Element index="0" value="1" />
+          </Property>
+          <Property name="CameraViewAngle" id="6219.CameraViewAngle" number_of_elements="1">
+            <Element index="0" value="30" />
+          </Property>
+          <Property name="CameraParallelScale" id="6219.CameraParallelScale" number_of_elements="1">
+            <Element index="0" value="0.07103232329977437" />
+          </Property>
+          <Property name="CameraParallelProjection" id="6219.CameraParallelProjection" number_of_elements="1">
+            <Element index="0" value="1" />
+            <Domain name="bool" id="6219.CameraParallelProjection.bool" />
+          </Property>
+        </Proxy>
+      </PVCameraConfiguration>
+    </Configuration>
+  </CustomViewpointButton0>
+</CustomViewpointsConfiguration>

@@ -1,4 +1,4 @@
-# trace generated using paraview version 5.9.1
+# trace generated using paraview version 5.10.0
 
 # Run instrustions:
 # copy the pvSaveAnimation.py file inside the data directory containing below stuff
@@ -111,7 +111,9 @@ renderView1.Update()
 # create a new 'Threshold'
 threshold1 = Threshold(registrationName='Threshold1', Input=appendAttributes1)
 threshold1.Scalars = ['CELLS', 'k']
-threshold1.ThresholdRange = [matDiff, matDiff]
+# threshold1.ThresholdRange = [matDiff, matDiff]    # For older paraview (eg. 5.9.1)
+threshold1.LowerThreshold = matDiff                 # For newer paraview (eg 5.10.0)
+threshold1.UpperThreshold = matDiff
 
 # show data in view
 threshold1Display = Show(threshold1, renderView1, 'UnstructuredGridRepresentation')
@@ -163,6 +165,12 @@ renderView1.CameraPosition = [0.11074966357080558, -0.021912925896228903, 0.1262
 renderView1.CameraFocalPoint = [0.009577158535611967, 0.036499047120428875, 0.009402278017785835]
 renderView1.CameraViewUp = [-0.6123724356957945, 0.3535533905932737, 0.7071067811865477]
 renderView1.CameraParallelScale = 0.03533928265994693
+
+# # Moai
+# renderView1.CameraPosition = [0.19686163888330363, -0.12008590446721502, 0.1741596364229267]
+# renderView1.CameraFocalPoint = [0.028797357466208238, 0.04797837694988043, 0.03693572526979305]
+# renderView1.CameraViewUp = [-0.35355339059327384, 0.3535533905932741, 0.8660254037844386]
+# renderView1.CameraParallelScale = 0.07103232329977437
 
 # Bunny
 # renderView1.CameraPosition = [0.17574178960415185, -0.039904191541431905, 0.19584864804186755]
