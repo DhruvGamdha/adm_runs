@@ -40,12 +40,15 @@ source /work2/09374/dgamdha/frontera/venv/gen/bin/activate
 # Launch MPI code... 
 # python convergencet.py printCorrected_3DBenchy_128R.csv 2 frontera
 # python convergencet.py printCorrected_3DBenchy_64R.csv 2 frontera
-python convergencet.py printCorrected_3DBenchy_32R.csv 2 frontera
+# python convergencet.py printCorrected_3DBenchy_32R.csv 2 frontera
+python convergencet.py printCorrected_3DBenchy_128R.csv 5 frontera
 
 # python convergencet.py bunny_128_zeroSparsity.csv 2 frontera
 # python convergencet.py bunny_64_zeroSparsity.csv 2 frontera
 # python convergencet.py bunny_32_zeroSparsity.csv 2 frontera
+# python convergencet.py bunny_128_zeroSparsity.csv 5 frontera
 
 # python convergencet.py Moai_128_zeroSparsity.csv 2 frontera
 # python convergencet.py Moai_64_zeroSparsity.csv 2 frontera
 # python convergencet.py Moai_32_zeroSparsity.csv 2 frontera
+# python convergencet.py Moai_128_zeroSparsity.csv 5 frontera

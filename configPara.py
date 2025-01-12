@@ -210,17 +210,17 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'coolDownNumTimesteps': 7000
             }
         
-        if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 2:
+        if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 5:
             paraDict = {
                 'voxelOrderFilename': geoName,
                 'refine_level_voxel': 7,
                 'baseProcs': 32,
-                'maxProcs': 112,
+                'maxProcs': 280,
                 'baseBreakPoint' : 48000,
                 'outputSpan': 25,
                 'checkpointFrequency': 100,
                 'voxelIncrementNumber': 198,
-                'dt': 0.00393*198/10,
+                'dt': 0.0778,
                 'numTimestepPerVoxel':10,
                 'mesh_max': [0.08, 0.08, 0.08],
                 'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
@@ -261,19 +261,18 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'coolDownNumTimesteps': 10000
             }
         
-        if geoName == "printCorrected_3DBenchy_128R.csv" and numNodes == 2:
+        if geoName == "printCorrected_3DBenchy_128R.csv" and numNodes == 5:
             paraDict = {
                 'voxelOrderFilename': geoName,
                 'refine_level_voxel': 7,
                 'baseProcs': 32,
-                'maxProcs': 112,
+                'maxProcs': 280,
                 'baseBreakPoint' : 48000,
                 'outputSpan': 1,
                 'checkpointFrequency': 5,
-                'voxelIncrementNumber': 1830,
-                # 'dt': 0.003977*130/10,
-                'dt': 0.002376*1830/120,
-                'numTimestepPerVoxel': 120,
+                'voxelIncrementNumber': 130,
+                'dt': 0.0389,
+                'numTimestepPerVoxel': 10,
                 'mesh_max': [0.06083, 0.06083, 0.06083],
                 'mesh_physicalDomainMax': [0.06083, 0.06083, 0.06083],
                 'coolDownNumTimesteps': 10000
@@ -296,12 +295,12 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'coolDownNumTimesteps': 10000
             }
         
-        if geoName == "Moai_128_zeroSparsity.csv" and numNodes == 2:
+        if geoName == "Moai_128_zeroSparsity.csv" and numNodes == 5:
             paraDict = {
                 'voxelOrderFilename': geoName,
                 'refine_level_voxel': 7,
                 'baseProcs': 32,
-                'maxProcs': 112,
+                'maxProcs': 280,
                 'baseBreakPoint' : 48000,
                 'outputSpan': 20,
                 'checkpointFrequency': 100,
