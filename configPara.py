@@ -210,6 +210,40 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
                 'coolDownNumTimesteps': 7000
             }
         
+        if geoName == "bunny_64_sparse2.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 112,
+                'baseBreakPoint' : 15000,
+                'outputSpan': 5,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 147,
+                'dt': 0.03147*147/8,
+                'numTimestepPerVoxel': 8,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 7000
+            }
+        
+        if geoName == "bunny_64_sparse4.csv" and numNodes == 2:
+            paraDict = {
+                'voxelOrderFilename': geoName,
+                'refine_level_voxel': 6,
+                'baseProcs': 8,
+                'maxProcs': 112,
+                'baseBreakPoint' : 15000,
+                'outputSpan': 5,
+                'checkpointFrequency': 1000,
+                'voxelIncrementNumber': 147,
+                'dt': 0.03147*147/8,
+                'numTimestepPerVoxel': 8,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 7000
+            }
+        
         if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 5:
             paraDict = {
                 'voxelOrderFilename': geoName,
