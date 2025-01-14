@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Script: removeDataFolder.sh
-# Description: Removes specified 'data' directories within 'frontera_run_XXX' directories under 'tests'.
-# Usage: ./removeDataFolder.sh
+# Script: 5_removeDataTarFile.sh
+# Description: Removes specified 'data.tar.gz' files within 'frontera_run_XXX' directories under 'tests'.
+# Usage: ./5_removeDataTarFile.sh
 
 # --- Configuration ---
 
-# Array of directory names to remove 'data' directories from
+# Array of directory names to remove 'data.tar.gz' files from
 DIRS_TO_REMOVE=("frontera_run_012" 
                 "frontera_run_013" 
                 "frontera_run_015"
@@ -23,16 +23,16 @@ CONFIRM=true
 # Function to display script usage
 usage() {
     echo "Usage: $0"
-    echo "Description: Removes specified 'data' directories within 'frontera_run_XXX' directories under 'tests'."
+    echo "Description: Removes specified 'data.tar.gz' files within 'frontera_run_XXX' directories under 'tests'."
     exit 1
 }
 
 # Function to confirm deletion (if CONFIRM is true)
 confirm_deletion() {
     if [ "$CONFIRM" = true ]; then
-        echo "The following 'data' directories will be removed:"
+        echo "The following 'data.tar.gz' files will be removed:"
         for DIR in "${DIRS_TO_REMOVE[@]}"; do
-            echo "${BASE_DIR}/${DIR}/data"
+            echo "${BASE_DIR}/${DIR}/data.tar.gz"
         done
         echo
         read -p "Are you sure you want to proceed? (y/n): " response
@@ -61,12 +61,12 @@ success_count=0
 failure_count=0
 failed_dirs=()
 
-# Iterate through each directory and remove 'data' directory
+# Iterate through each directory and remove 'data.tar.gz' files
 for DIR in "${DIRS_TO_REMOVE[@]}"; do
-    TARGET_DIR="${BASE_DIR}/${DIR}/data"
+    TARGET_DIR="${BASE_DIR}/${DIR}/data.tar.gz"
     echo "Processing: ${TARGET_DIR}"
     
-    if [ -d "$TARGET_DIR" ]; then
+    if [ -f "$TARGET_DIR" ]; then
         rm -rf "$TARGET_DIR"
         if [ $? -eq 0 ]; then
             echo "Successfully removed: ${TARGET_DIR}"

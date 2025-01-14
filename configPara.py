@@ -299,8 +299,8 @@ def geometryParaCombination(geoName, numNodes, computeSystem):
             paraDict = {
                 'voxelOrderFilename': geoName,
                 'refine_level_voxel': 7,
-                'baseProcs': 32,
-                'maxProcs': 280,
+                'baseProcs': 28,
+                'maxProcs': 224,
                 'baseBreakPoint' : 48000,
                 'outputSpan': 1,
                 'checkpointFrequency': 5,

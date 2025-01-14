@@ -6,12 +6,15 @@
 
 # --- Configuration ---
 
-# Array of directory names to move
-RUN_DIRS=("frontera_run_001" "frontera_run_002" "frontera_run_003" "frontera_run_004" "frontera_run_005" "frontera_run_006" "frontera_run_007" "frontera_run_008" "frontera_run_009" "frontera_run_010" "frontera_run_011" "frontera_run_012" "frontera_run_013" "frontera_run_014" "frontera_run_015" "frontera_run_016" "frontera_run_017" "frontera_run_018" "frontera_run_019" "frontera_run_020")
+# Array of directory names to copy
+RUN_DIRS=(  "frontera_run_012" 
+            "frontera_run_013" 
+            "frontera_run_015"
+            "frontera_run_016")
 
 # Base source and destination directories
 SOURCE_BASE_DIR="/scratch1/09374/dgamdha/projects/leaphi/adm_runs/tests"
-DEST_BASE_DIR="/work2/09374/dgamdha/frontera/projects/leaphi/adm_runs/set1"
+DEST_BASE_DIR="/work2/09374/dgamdha/frontera/projects/leaphi/adm_runs/set2"
 
 # Enable or disable confirmation prompt before moving
 CONFIRM=true
@@ -26,13 +29,13 @@ usage() {
 }
 
 # Function to confirm moving directories
-confirm_move() {
+confirm_copy() {
     if [ "$CONFIRM" = true ]; then
-        echo "The following 'frontera_run_XXX' directories will be moved from:"
+        echo "The following 'frontera_run_XXX' directories will be copied from:"
         echo "Source: $SOURCE_BASE_DIR"
         echo "Destination: $DEST_BASE_DIR"
         echo
-        echo "Directories to move:"
+        echo "Directories to copy:"
         for DIR in "${RUN_DIRS[@]}"; do
             echo "- $DIR"
         done
@@ -50,8 +53,8 @@ confirm_move() {
     fi
 }
 
-# Function to move a single directory
-move_directory() {
+# Function to copy a single directory
+copy_directory() {
     local dir_name="$1"
     local source_dir="${SOURCE_BASE_DIR}/${dir_name}"
     local dest_dir="${DEST_BASE_DIR}/${dir_name}"
@@ -76,12 +79,13 @@ move_directory() {
         fi
 
         # Move the directory
-        mv "$source_dir" "$dest_dir"
+        # mv "$source_dir" "$dest_dir"
+        cp -r "$source_dir" "$dest_dir"
         if [ $? -eq 0 ]; then
-            echo "Successfully moved ${dir_name} to set1."
+            echo "Successfully copied ${dir_name}."
             return 0
         else
-            echo "Error: Failed to move ${dir_name}." >&2
+            echo "Error: Failed to copy ${dir_name}." >&2
             return 1
         fi
     else
@@ -95,17 +99,17 @@ move_directory() {
 # Optional: Call usage function if needed (e.g., if adding arguments in the future)
 # usage
 
-# Confirm move if enabled
-confirm_move
+# Confirm copy if enabled
+confirm_copy
 
 # Initialize counters for summary
 success_count=0
 failure_count=0
 failed_dirs=()
 
-# Iterate through each directory name and perform the move
+# Iterate through each directory name and perform the copy
 for DIR in "${RUN_DIRS[@]}"; do
-    move_directory "$DIR"
+    copy_directory "$DIR"
     if [ $? -eq 0 ]; then
         ((success_count++))
     else
@@ -118,17 +122,17 @@ done
 echo "========================================"
 echo "Move Operation Summary:"
 echo "-----------------------"
-echo "Successfully moved directories: $success_count"
-echo "Failed to move directories: $failure_count"
+echo "Successfully copied directories: $success_count"
+echo "Failed to copy directories: $failure_count"
 
 if [ "$failure_count" -ne 0 ]; then
-    echo "The following directories failed to move:"
+    echo "The following directories failed to copy:"
     for DIR in "${failed_dirs[@]}"; do
         echo "- $DIR"
     done
     exit 1
 else
-    echo "All specified directories have been moved successfully."
+    echo "All specified directories have been copied successfully."
     exit 0
 fi
 
