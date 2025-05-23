@@ -34,7 +34,7 @@ def createConfig(paraDict):
         "numTimestepPerVoxel": paraDict['numTimestepPerVoxel'],
         "thermConductivity": 0.2,
         "convectCoeff": -30,
-        "natural_convectCoeff": -3,
+        "natural_convectCoeff": -0.3,
         "ambientTemperature" : 368.15,
         "emissivity": 0,
         "curr_UPre_dampFactor": 1.0,
@@ -244,6 +244,54 @@ def geometryParaCombination(geoName,
             })
         
         if geoName == "bunny_128_zeroSparsity.csv" and numNodes == 5:
+            paraDict.update({
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 280,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 25,
+                'checkpointFrequency': 100,
+                'voxelIncrementNumber': 198,
+                'dt': 0.0778,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 7000
+            })
+        
+        if geoName == "bunny_sparse_mp_0p3_ms_4.csv" and numNodes == 5:
+            paraDict.update({
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 280,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 25,
+                'checkpointFrequency': 100,
+                'voxelIncrementNumber': 198,
+                'dt': 0.0778,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 7000
+            })
+        
+        if geoName == "bunny_sparse_mp_0p5_ms_4.csv" and numNodes == 5:
+            paraDict.update({
+                'refine_level_voxel': 7,
+                'baseProcs': 32,
+                'maxProcs': 280,
+                'baseBreakPoint' : 48000,
+                'outputSpan': 25,
+                'checkpointFrequency': 100,
+                'voxelIncrementNumber': 198,
+                'dt': 0.0778,
+                'numTimestepPerVoxel':10,
+                'mesh_max': [0.08, 0.08, 0.08],
+                'mesh_physicalDomainMax': [0.08, 0.08, 0.08],
+                'coolDownNumTimesteps': 7000
+            })
+            
+        if geoName == "bunny_sparse_mp_0p7_ms_4.csv" and numNodes == 5:
             paraDict.update({
                 'refine_level_voxel': 7,
                 'baseProcs': 32,
