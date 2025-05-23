@@ -40,10 +40,12 @@ def checkDirFileExists(pathObj, isDir=True, isRaiseError=True):
         return checkResult
     
     
-def runExe(exePath, nProcs, isStartRun, isCoolDown=False):
+def runExe(exePath, nProcs, isStartRun, computeSystem, isCoolDown=False):
     try:
-        # command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
-        command = ['ibrun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+        if computeSystem == 'frontera':
+            command = ['ibrun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
+        else:
+            command = ['mpirun', '-n', str(nProcs), exePath, '--bind-to core', '--map-by numa:PE=1/2', '--report-bindings']
 
         # Add resume flag for a non-start run
         if not isStartRun:
@@ -124,7 +126,7 @@ def changeDirectory(newDirPathObj):
     os.chdir(newDirPathObj)
     print("cwd: ", os.getcwd())
 
-def setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg):
+def setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, printGeomDense, cfg):
     """
     Set up the environment for running the simulation.
     """
@@ -134,6 +136,9 @@ def setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg):
     changeDirectory(dataDirPathObj)
 
     shutil.copyfile(geoDir_po / printGeom, dataDirPathObj / printGeom)
+    
+    if printGeomDense is not "":
+        shutil.copyfile(geoDir_po / printGeomDense, dataDirPathObj / printGeomDense)
     
     with open('config.txt', 'w') as f:
         libconf.dump(cfg, f)
@@ -159,7 +164,12 @@ def evaluateCompletion(dataDirPathObj):
 
     return amountComplete, lastProcs
 
-def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileName):
+def runSimulation(exePath, 
+                  paraDict, 
+                  timeTakenFileName, 
+                  dataDirPathObj, 
+                  eosFileName,
+                  computeSystem):
     runProcs = 1
     lastProcs = 0
     isStartRun = True
@@ -175,7 +185,7 @@ def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileN
         runProcs = getRunProcs(paraDict['baseProcs'], paraDict['maxProcs'], lastProcs)
         
         startRun_time = time.time()
-        runExe(exePath, runProcs, isStartRun, False)
+        runExe(exePath, runProcs, isStartRun, computeSystem, False)
         endRun_time = time.time()
         
         if not isStartRun:
@@ -197,7 +207,7 @@ def runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileN
         if os.path.isfile(eosFileName):
             break
 
-def runCoolDown(exePath, timeTakenFileName, dataDirPathObj):
+def runCoolDown(exePath, timeTakenFileName, dataDirPathObj, computeSystem):
     # Find the last procs used and restart the simulation with those procs with
     # resume_from_checkpoint and cool_down flags
     lastProcs = 0
@@ -216,7 +226,7 @@ def runCoolDown(exePath, timeTakenFileName, dataDirPathObj):
     isCoolDown = True
     
     startRun_time = time.time()
-    runExe(exePath, runProcs, isStartRun, isCoolDown)
+    runExe(exePath, runProcs, isStartRun, computeSystem, isCoolDown)
     endRun_time = time.time()
     
     timeTakenFile = open(timeTakenFileName, 'a' if os.path.isfile(timeTakenFileName) else 'w')

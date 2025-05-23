@@ -9,7 +9,11 @@ from configPara import geometryParaCombination, createConfig
 from utils import createLatestDir, prepareDirectories, changeDirectory, setupRunEnvironment, runSimulation, cleanupAndArchiveData, paraviewStuff, runCoolDown
 
 
-def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
+def runVoxelPrinting(exePath, 
+                     paraDict, 
+                     baseDirPathObj, 
+                     runTemplate,
+                     computeSystem):
     
     timeTakenFileName = "timetaken.txt"
     eosFileName = "eos.txt"
@@ -23,12 +27,25 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
     changeDirectory(runDirPathObj) 
     
     printGeom = paraDict['voxelOrderFilename']
+    printGeomDense = paraDict['voxelOrderDenseFilename']
     
-    dataDirPathObj = setupRunEnvironment(runDirPathObj, geoDir_po, printGeom, cfg)
+    dataDirPathObj = setupRunEnvironment(runDirPathObj, 
+                                         geoDir_po, 
+                                         printGeom, 
+                                         printGeomDense, 
+                                         cfg)
     
-    runSimulation(exePath, paraDict, timeTakenFileName, dataDirPathObj, eosFileName)
+    runSimulation(exePath, 
+                  paraDict, 
+                  timeTakenFileName, 
+                  dataDirPathObj, 
+                  eosFileName,
+                  computeSystem)
     
-    runCoolDown(exePath, timeTakenFileName, dataDirPathObj)
+    runCoolDown(exePath, 
+                timeTakenFileName, 
+                dataDirPathObj,
+                computeSystem)
     
     if dataDirPathObj/ eosFileName:
         print("Simulation completed successfully.")
@@ -40,17 +57,25 @@ def runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate):
               
 if __name__ == "__main__":
     
-    versionTemplate = "config_{0:03d}"
+    # versionTemplate = "config_{0:03d}"
     
     # Check the length of the command line arguments
-    if len(sys.argv) != 4:
+    # assert len(sys.argv) == 5, "Usage: python convergencet.py <geomName> <denseGeomName> <numNodes> <computeSystem>"
+    if len(sys.argv) == 4:
+        geomName = sys.argv[1]
+        denseGeomName  = ""
+        numNodes = int(sys.argv[2])
+        computeSystem = sys.argv[3]
+    elif len(sys.argv) == 5:
+        geomName = sys.argv[1]
+        denseGeomName  = sys.argv[2]
+        numNodes = int(sys.argv[3])
+        computeSystem = sys.argv[4]
+    else:
         geomName = "bunny_32_sparse2.csv"
+        denseGeomName  = "bunny_32_zeroSparsity.csv"
         numNodes = 1
         computeSystem = 'local' # 'local', 'nova', 'anvil', 'frontera'
-    else:
-        geomName = sys.argv[1]
-        numNodes = int(sys.argv[2])
-        computeSystem = sys.argv[3] # 'local', 'nova', 'anvil', 'frontera'
     
     # ************ Local ************
     if computeSystem == 'local':
@@ -84,6 +109,13 @@ if __name__ == "__main__":
     if not os.path.isdir(baseDirPathObj) or not os.path.isfile(exePath):
         raise ValueError("baseDirPathObj and exePath must exist.")
         
-    paraDict = geometryParaCombination(geomName, numNodes, computeSystem)
+    paraDict = geometryParaCombination(geomName, 
+                                       denseGeomName,
+                                       numNodes, 
+                                       computeSystem)
     
-    runVoxelPrinting(exePath, paraDict, baseDirPathObj, runTemplate)
+    runVoxelPrinting(exePath, 
+                     paraDict, 
+                     baseDirPathObj, 
+                     runTemplate,
+                     computeSystem)
